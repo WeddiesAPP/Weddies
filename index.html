@@ -1230,10 +1230,7 @@ fetch('matches.xlsx')
       }
     }
 
-    });
     // Get the matches on the selected date and display them
-    document.addEventListener('DOMContentLoaded', () => {
-      displayAllMarkers();
     const dateInput = document.getElementById('date-input');
     dateInput.addEventListener('change', handleDateChange);
 
@@ -1241,7 +1238,9 @@ fetch('matches.xlsx')
     const currentDate = new Date().toISOString().slice(0, 10);
     handleDateChange({ target: { value: currentDate } });
   });
-
+  document.addEventListener('DOMContentLoaded', () => {
+    displayAllMarkers();
+  });
 function addCurrentUserLocation() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
