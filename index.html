@@ -1238,15 +1238,16 @@ fetch('matches.xlsx')
     const currentDate = new Date().toISOString().slice(0, 10);
     handleDateChange({ target: { value: currentDate } });
   });
+
   function displayAllMarkers() {
   for (const club of clubs) {
     clubMarkers[club.name].addTo(map);
   }
 }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    displayAllMarkers();
-  });
+window.addEventListener('load', () => {
+  displayAllMarkers();
+});
 function addCurrentUserLocation() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
