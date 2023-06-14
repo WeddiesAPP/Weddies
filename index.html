@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Football Clubs Map</title>
+    <style>
+    body {
+      margin: 0;
+      padding: 0;
+  }
+
+  .container {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      background-color: transparent;
+  }
+
+  .search-container {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      z-index: 999;
+  }
+
+  #mapid {
+      width: 100%;
+      height: calc(100vh - 40px);
+      background-color: transparent;
+  }
+
+#search-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#mapid {
+  width: 100%;
+  flex-grow: 1;
+  background-color: transparent;
+}
+
+        #search-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f8f9fa00;
+        }
+
+        #search-bar {
+            position: relative;
+        }
+
+        #search-input {
+            width: 200px;
+            padding: 5px;
+        }
+
+        #search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-top: none;
+            display: none;
+        }
+
+        #search-suggestions ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #search-suggestions li {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        #search-suggestions li:hover {
+            background-color: #f8f9fa00;
+        }
+
+        #mapid {
+            width: 100%;
+            height: 100vh;
+        }
+        .club-marker-icon {
+          position: relative;
+          width: auto;
+          height: auto;
+          overflow: hidden;
+          z-index: 2;
+        }
+
+        .club-logo {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          position: relative;
+          z-index: 2;
+        }
+
+        .club-marker {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: auto;
+          height: auto;
+          overflow: hidden;
+          z-index: 1;
+        }
+
+
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="search-container">
+    <div id="search-section">
+        <div id="search-bar">
+            <input type="text" id="search-input" placeholder="Search for a club">
+            <div id="search-suggestions"></div>
+        </div>
+        <div id="date-section">
+    <label for="date-input">Select a date:</label>
+    <input type="date" id="date-input">
+</div>
+
+        <select id="league-filter">
+            <option value="">All Leagues</option>
+            <option value="Eredivisie">Eredivisie</option>
+            <option value="Keuken Kampioen Divisie">Keuken Kampioen Divisie</option>
+              <option value="Tweede Divisie">Tweede Divisie</option>
+                <option value="Derde Divisie Zaterdag">Derde Divisie Zaterdag</option>
+                  <option value="Derde Divisie Zondag">Derde Divisie Zondag</option>
+        </select>
+        <input type="range" id="radius-slider" min="1" max="250" value="10" step="1">
+        <label for="radius-slider">Search Radius</label>
+        <span id="radius-value">10</span> km
+    </div>
+  </div>
+    <div id="mapid"></div>
+  </div>
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+
+const clubs = [
+  {
+    name: 'ADO Den Haag',
+    league: 'Keuken Kampioen Divisie',
+    city: 'The Hague',
+    location: [52.071818, 4.356898],
+    color: 'green',
+    link: 'https://en.wikipedia.org/wiki/ADO_Den_Haag',
+    ticketLink: 'https://adodenhaag.nl/nl/tickets/kaartverkoop'
+  },
+  {
+    name: 'NAC Breda',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Breda',
+    location: [51.5948168, 4.7503638],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/NAC_Breda',
+    ticketLink: 'https://shop.ticketing.cm.com/nac-breda/6b77fdfa-3433-4ddf-9e24-74e8a3af2026'
+  },
+  {
+    name: 'MVV Maastricht',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Maastricht',
+    location: [50.8580, 5.7174],
+    color: 'red',
+    link: 'https://nl.wikipedia.org/wiki/MVV_Maastricht',
+    ticketLink: 'https://shop.ticketing.cm.com/MVVMaastricht/0ccab177-cdba-47c2-a2fb-a7120e63b47c'
+  },
+  {
+name: 'Roda JC Kerkrade',
+league: 'Keuken Kampioen Divisie',
+city: 'Kerkrade',
+location: [50.8658, 6.0609],
+color: 'yellow',
+link: 'https://nl.wikipedia.org/wiki/Roda_JC_Kerkrade',
+ticketLink: 'https://www.rodajckerkrade.nl/tickets/'
+},
+{
+name: 'Telstar',
+league: 'Keuken Kampioen Divisie',
+city: 'Velsen-Zuid',
+location: [52.4527, 4.6599],
+color: 'orange',
+link: 'https://nl.wikipedia.org/wiki/Telstar_(voetbalclub)',
+ticketLink: 'https://www.telstarfanshop.nl/tickets'
+},
+{
+name: 'TOP Oss',
+league: 'Keuken Kampioen Divisie',
+city: 'Oss',
+location: [51.7544, 5.5272],
+color: 'green',
+link: 'https://nl.wikipedia.org/wiki/TOP_Oss',
+ticketLink: 'https://www.toposs.nl/tickets'
+},
+
+  {
+    name: 'FC Emmen',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Emmen',
+    location: [52.7746, 6.9451],
+    color: 'red',
+    link: 'https://nl.wikipedia.org/wiki/FC_Emmen',
+    ticketLink: 'https://voetbal-fc-emmen.iticketsro.com/nl-NL/categories/thuiswedstrijd'
+  },
+  {
+    name: 'Ajax',
+    league: 'Eredivisie',
+    city: 'Amsterdam',
+    location: [52.366667, 4.900000],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/AFC_Ajax',
+    ticketLink: 'https://tickets.ajax.nl/content?lang=nl'
+  },
+  {
+    name: 'AZ',
+    league: 'Eredivisie',
+    city: 'Alkmaar',
+    location: [52.632222, 4.739167],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/AZ_Alkmaar',
+    ticketLink: 'https://www.az.nl/nl/teams/wedstrijden?team=az'
+  },
+  {
+    name: 'FC Groningen',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Groningen',
+    location: [53.218333, 6.558889],
+    color: 'green',
+    link: 'https://en.wikipedia.org/wiki/FC_Groningen',
+    ticketLink: 'https://tickets.fcgroningen.nl/dashboard'
+  },
+  {
+    name: 'FC Twente',
+    league: 'Eredivisie',
+    city: 'Enschede',
+    location: [52.236111, 6.854722],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/FC_Twente',
+    ticketLink: 'https://fctwente.nl/wedstrijden/eerste-selectie'
+  },
+  {
+    name: 'FC Utrecht',
+    league: 'Eredivisie',
+    city: 'Utrecht',
+    location: [52.088889, 5.104444],
+    color: 'white',
+    link: 'https://en.wikipedia.org/wiki/FC_Utrecht',
+    ticketLink: 'https://ticketing.fcutrecht.nl/dashboard'
+  },
+  {
+    name: 'Feyenoord',
+    league: 'Eredivisie',
+    city: 'Rotterdam',
+    location: [51.893889, 4.523333],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Feyenoord',
+    ticketLink: 'https://tickets.feyenoord.nl/dashboard'
+  },
+  {
+    name: 'Fortuna Sittard',
+    league: 'Eredivisie',
+    city: 'Sittard',
+    location: [50.990313, 5.853319],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/Fortuna_Sittard',
+    ticketLink: 'https://ticketshop.fortunasittard.nl/dashboard'
+  },
+  {
+    name: 'Go Ahead Eagles',
+    league: 'Eredivisie',
+    city: 'Deventer',
+    location: [52.258667, 6.161667],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/Go_Ahead_Eagles',
+    ticketLink: 'https://voetbal-go-ahead-eagles.iticketsro.com/nl-NL/categories/thuiswedstrijd'
+  },
+  {
+    name: 'Heracles Almelo',
+    league: 'Eredivisie',
+    city: 'Almelo',
+    location: [52.348333, 6.664167],
+    color: 'black',
+    link: 'https://en.wikipedia.org/wiki/Heracles_Almelo',
+    ticketLink: 'https://www.heracles.nl/tickets/'
+  },
+  {
+    name: 'NEC Nijmegen',
+    league: 'Eredivisie',
+    city: 'Nijmegen',
+    location: [51.832343, 5.866603],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/NEC_Nijmegen',
+    ticketLink: 'https://tickets.nec-nijmegen.nl/dashboard'
+  },
+  {
+    name: 'PEC Zwolle',
+    league: 'Eredivisie',
+    city: 'Zwolle',
+    location: [52.516667, 6.083333],
+    color: 'blue',
+    link: 'https://en.wikipedia.org/wiki/PEC_Zwolle',
+    ticketLink: 'https://peczwolle.nl/teams/heren/2022-2023/programma?redirect=1#ticketsn'
+  },
+  {
+    name: 'RKC Waalwijk',
+    league: 'Eredivisie',
+    city: 'Waalwijk',
+    location: [51.686667, 5.065556],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/RKC_Waalwijk',
+    ticketLink: 'https://ticketing.rkcwaalwijk.nl/dashboard'
+  },
+  {
+    name: 'SC Cambuur',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Leeuwarden',
+    location: [53.211864, 5.797436],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/SC_Cambuur',
+    ticketLink: 'https://voetbal-sc-cambuur.iticketsro.com'
+  },
+  {
+    name: 'Sparta Rotterdam',
+    league: 'Eredivisie',
+    city: 'Rotterdam',
+    location: [51.917500, 4.429167],
+    color: 'white',
+    link: 'https://en.wikipedia.org/wiki/Sparta_Rotterdam',
+    ticketLink: 'https://tickets.sparta-rotterdam.nl/nl-NL/categories/alle-wedstrijdenc'
+  },
+  {
+    name: 'Vitesse',
+    league: 'Eredivisie',
+    city: 'Arnhem',
+    location: [51.981389, 5.910000],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/Vitesse',
+    ticketLink: 'https://www.vitesse.nl/supporters/ticketing/wedstrijdens'
+  },
+
+  {
+    name: 'Willem II',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Tilburg',
+    location: [51.565000, 5.085556],
+    color: 'white',
+    link: 'https://en.wikipedia.org/wiki/Willem_II_(football_club)',
+    ticketLink: 'https://ticketshop.willem-ii.nl/dashboard'
+  },
+  {
+    name: 'Almere City FC',
+    league: 'Eredivisie',
+    city: 'Almere',
+    location: [52.359250, 5.253246],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Almere_City_FC',
+    ticketLink: 'https://tickets.almerecity.nl/dashboard'
+  },
+  {
+    name: 'De Graafschap',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Doetinchem',
+    location: [51.959722, 6.279167],
+    color: 'blue',
+    link: 'https://en.wikipedia.org/wiki/De_Graafschap',
+    ticketLink: 'https://www.degraafschap.nl/kaartverkoop/competitiewedstrijden'
+  },
+  {
+    name: 'Excelsior',
+    league: 'Eredivisie',
+    city: 'Rotterdam',
+    location: [51.893333, 4.499167],
+    color: 'black',
+    link: 'https://en.wikipedia.org/wiki/SBV_Excelsior',
+    ticketLink: 'https://tickets.sbvexcelsior.nl/dashboard'
+  },
+  {
+    name: 'FC Den Bosch',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Den Bosch',
+    location: [51.688889, 5.317778],
+    color: 'blue',
+    link: 'https://en.wikipedia.org/wiki/FC_Den_Bosch',
+    ticketLink: 'https://tickets.fcdenbosch.nl'
+  },
+  {
+    name: 'FC Dordrecht',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Dordrecht',
+    location: [51.797770, 4.665570],
+    color: 'green',
+    link: 'https://en.wikipedia.org/wiki/FC_Dordrecht',
+    ticketLink: 'https://tickets.fcdordrecht.nl/dashboardf'
+  },
+  {
+    name: 'FC Eindhoven',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Eindhoven',
+    location: [51.440833, 5.463611],
+    color: 'blue',
+    link: 'https://en.wikipedia.org/wiki/FC_Eindhoven',
+    ticketLink: 'https://shop.ticketing.cm.com/fceindhoven/account/loginf'
+  },
+  {
+    name: 'PSV',
+    league: 'Eredivisie',
+    city: 'Eindhoven',
+    location: [51.441667, 5.469722],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/PSV_Eindhoven',
+    ticketLink: 'https://ticketshop.psv.nl/nl-NL/categories/PSV-1'
+  },
+  {
+name: 'SC Heerenveen',
+league: 'Eredivisie',
+city: 'Heerenveen',
+location: [52.9595, 5.9402],
+color: 'blue',
+link: 'https://nl.wikipedia.org/wiki/SC_Heerenveen',
+ticketLink: 'https://www.sc-heerenveen.nl/tickets'
+},
+  {
+    name: 'FC Volendam',
+    league: 'Eredivisie',
+    city: 'Volendam',
+    location: [52.500000, 5.071667],
+    color: 'orange',
+    link: 'https://en.wikipedia.org/wiki/FC_Volendam',
+    ticketLink: 'https://www.fcvolendam.nl/tickets'
+  },
+  {
+    name: 'Helmond Sport',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Helmond',
+    location: [51.482778, 5.657222],
+    color: 'black',
+    link: 'https://en.wikipedia.org/wiki/Helmond_Sport',
+    ticketLink: 'https://helmondsport.nl/tickets/'
+  },
+  {
+    name: 'Jong Ajax',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Amsterdam',
+    location: [52.366667, 4.900000],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Jong_Ajax',
+    ticketLink: 'https://tickets.ajax.nl/content?lang=nl'
+  },
+  {
+    name: 'Jong AZ',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Alkmaar',
+    location: [52.632222, 4.739167],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Jong_AZ',
+    ticketLink: 'https://www.az.nl/nl/teams/jong-az'
+  },
+  {
+    name: 'Jong FC Utrecht',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Utrecht',
+    location: [52.088889, 5.104444],
+    color: 'white',
+    link: 'https://en.wikipedia.org/wiki/Jong_FC_Utrecht',
+    ticketLink: 'https://ticketing.fcutrecht.nl/dashboard'
+  },
+  {
+    name: 'Jong PSV',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Eindhoven',
+    location: [51.441667, 5.469722],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Jong_PSV',
+    ticketLink: 'https://ticketshop.psv.nl/nl-NL/categories/PSV-J'
+  },
+  {
+    name: 'Jong FC Twente',
+    league: '?',
+    city: 'Enschede',
+    location: [52.236111, 6.854722],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Jong_FC_Twente',
+    ticketLink: 'https://fctwente.nl/wedstrijden/jong-fc-twente'
+  },
+  {
+    name: 'Jong Feyenoord',
+    league: 'Keuken Kampioen Divisie',
+    city: 'Rotterdam',
+    location: [51.893889, 4.523333],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Jong_Feyenoord',
+    ticketLink: 'https://tickets.feyenoord.nl/categories/Jong_Feyenoord'
+  },
+  {
+    name: 'Jong Heracles Almelo',
+    league: '?',
+    city: 'Almelo',
+    location: [52.348333, 6.664167],
+    color: 'black',
+    link: 'https://en.wikipedia.org/wiki/Jong_Heracles_Almelo',
+    ticketLink: 'https://www.heracles.nl/jong-heracles-almelo'
+  },
+  {
+    name: 'Jong NEC Nijmegen',
+    league: '?',
+    city: 'Nijmegen',
+    location: [51.832343, 5.866603],
+    color: 'red',
+    link: 'https://en.wikipedia.org/wiki/Jong_NEC_Nijmegen',
+    ticketLink: 'https://tickets.nec-nijmegen.nl'
+  },
+  {
+    name: 'Jong PEC Zwolle',
+    league: '?',
+    city: 'Zwolle',
+    location: [52.516667, 6.083333],
+    color: 'blue',
+    link: 'https://en.wikipedia.org/wiki/Jong_PEC_Zwolle',
+    ticketLink: 'https://peczwolle.nl/teams/jong-pec-zwolle'
+  },
+  {
+    name: 'Jong RKC Waalwijk',
+    league: '?',
+    city: 'Waalwijk',
+    location: [51.686667, 5.065556],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/Jong_RKC_Waalwijk',
+    ticketLink: 'https://ticketing.rkcwaalwijk.nl/jong/dashboard'
+  },
+  {
+name: 'VVV Venlo',
+league: 'Keuken Kampioen Divisie',
+city: 'Venlo',
+location: [51.3744, 6.1714],
+color: 'yellow',
+link: 'https://nl.wikipedia.org/wiki/VVV-Venlo',
+ticketLink: 'https://www.vvv-venlo.nl/nl/tickets'
+},
+
+  {
+    name: 'Jong Vitesse',
+    league: '?',
+    city: 'Arnhem',
+    location: [51.981389, 5.910000],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/Jong_Vitesse',
+    ticketLink: 'https://www.vitesse.nl/teams/jong-vitesse/wedstrijdens'
+  },
+  {
+    name: 'Jong VVV Venlo',
+    league: '?',
+    city: 'Venlo',
+    location: [51.366667, 6.166667],
+    color: 'yellow',
+    link: 'https://en.wikipedia.org/wiki/Jong_VVV-Venlo',
+    ticketLink: 'https://tickets.vvv-venlo.nl'
+  },
+  {
+   name: 'ACV Assen',
+   league: 'Tweede Divisie',
+   city: 'Assen',
+   location: [53.0079, 6.5813],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/ACV_Assen',
+   ticketLink: 'https://www.acvassen.nl/'
+ },
+ {
+   name: "ADO '20",
+   league: 'Tweede Divisie',
+   city: 'Heemskerk',
+   location: [52.5162, 4.6762],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/ADO_%2720',
+   ticketLink: 'https://www.ado20.nl/'
+ },
+ {
+   name: 'AFC',
+   league: 'Tweede Divisie',
+   city: 'Amsterdam',
+   location: [52.3203, 4.8924],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/AFC_(football_club)',
+   ticketLink: 'https://www.afc.nl/'
+ },
+ {
+   name: 'De Treffers',
+   league: 'Tweede Divisie',
+   city: 'Groesbeek',
+   location: [51.7783, 5.9382],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/De_Treffers',
+   ticketLink: 'https://www.detreffers.nl/'
+ },
+ {
+   name: 'Excelsior Maassluis',
+   league: 'Tweede Divisie',
+   city: 'Maassluis',
+   location: [51.9294, 4.2689],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Excelsior_Maassluis',
+   ticketLink: 'https://excelsiorm.nl/'
+ },
+ {
+   name: 'FC Lisse',
+   league: 'Tweede Divisie',
+   city: 'Lisse',
+   location: [52.2556, 4.5537],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/FC_Lisse',
+   ticketLink: 'https://www.fclisse.nl/'
+ },
+ {
+   name: 'HHC Hardenberg',
+   league: 'Tweede Divisie',
+   city: 'Hardenberg',
+   location: [52.5719, 6.6067],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/HHC_Hardenberg',
+   ticketLink: 'https://www.hhc-hardenberg.nl/'
+ },
+ {
+   name: 'Jong Almere City FC',
+   league: 'Tweede Divisie',
+   city: 'Almere',
+   location: [52.3702, 5.2180],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Jong_Almere_City_FC',
+   ticketLink: 'https://almerecity.nl/'
+ },
+ {
+   name: 'Jong Sparta Rotterdam',
+   league: 'Tweede Divisie',
+   city: 'Rotterdam',
+   location: [51.9192, 4.5145],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Jong_Sparta_Rotterdam',
+   ticketLink: 'https://www.sparta-rotterdam.nl/'
+ },
+ {
+   name: 'Katwijk',
+   league: 'Tweede Divisie',
+   city: 'Katwijk',
+   location: [52.2047, 4.4065],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/VV_Katwijk',
+   ticketLink: 'https://www.vvkatwijk.nl/'
+ },
+ {
+   name: 'Koninklijke HFC',
+   league: 'Tweede Divisie',
+   city: 'Haarlem',
+   location: [52.3908, 4.6303],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Koninklijke_HFC',
+   ticketLink: 'https://www.konhfc.nl/'
+ },
+ {
+   name: 'Kozakken Boys',
+   league: 'Tweede Divisie',
+   city: 'Werkendam',
+   location: [51.8087, 4.8955],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Kozakken_Boys',
+   ticketLink: 'https://www.kozakkenboys.nl/'
+ },
+ {
+   name: 'Noordwijk',
+   league: 'Tweede Divisie',
+   city: 'Noordwijk',
+   location: [52.2452, 4.4526],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/VV_Noordwijk',
+   ticketLink: 'https://www.vvnoordwijk.nl/'
+ },
+ {
+   name: 'Quick Boys',
+   league: 'Tweede Divisie',
+   city: 'Katwijk',
+   location: [52.2124, 4.4192],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Quick_Boys',
+   ticketLink: 'https://www.quickboys.nl/'
+ },
+ {
+   name: 'Rijnsburgse Boys',
+   league: 'Tweede Divisie',
+   city: 'Rijnsburg',
+   location: [52.1864, 4.4461],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Rijnsburgse_Boys',
+   ticketLink: 'https://www.rijnsburgseboys.nl/'
+ },
+ {
+   name: 'Scheveningen',
+   league: 'Tweede Divisie',
+   city: 'Scheveningen',
+   location: [52.1004, 4.2670],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Scheveningen_(football_club)',
+   ticketLink: 'https://svvscheveningen.nl/'
+ },
+ {
+   name: 'Spakenburg',
+   league: 'Tweede Divisie',
+   city: 'Spakenburg',
+   location: [52.2487, 5.3777],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Spakenburg',
+   ticketLink: 'https://www.spakenburg.com/'
+ },
+ {
+   name: 'Barendrecht',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Barendrecht',
+   location: [51.8538, 4.5484],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/BVV_Barendrecht',
+   ticketLink: 'https://www.bvvbarendrecht.nl/'
+ },
+ {
+   name: 'DOVO',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Veenendaal',
+   location: [52.0264, 5.5556],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/DOVO',
+   ticketLink: 'https://www.dovo.nl/'
+ },
+ {
+   name: 'DVS\'33 Ermelo',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Ermelo',
+   location: [52.2948, 5.6070],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/DVS%2733_Ermelo',
+   ticketLink: 'https://www.dvs33.nl/'
+ },
+ {
+   name: 'Eemdijk',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Bunschoten',
+   location: [52.2436, 5.3630],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Eemdijk',
+   ticketLink: 'https://www.eemdijk.nl/'
+ },
+ {
+   name: 'FC Rijnvogels',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Katwijk',
+   location: [52.2163, 4.4206],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/FC_Rijnvogels',
+   ticketLink: 'https://www.fcrijnvogels.nl/'
+ },
+ {
+   name: 'Harkemase Boys',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Harkema',
+   location: [53.1804, 6.1263],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Harkemase_Boys',
+   ticketLink: 'https://www.harkemaseboys.nl/'
+ },
+ {
+   name: 'Hoek',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Hoek',
+   location: [51.3025, 3.7807],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/VV_Hoek',
+   ticketLink: 'https://www.voetbalvereniginghoek.nl/'
+ },
+ {
+   name: 'IJsselmeervogels',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Bunschoten-Spakenburg',
+   location: [52.2446, 5.3758],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/IJsselmeervogels',
+   ticketLink: 'https://www.ijsselmeervogels.com/'
+ },
+ {
+   name: 'Kloetinge',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Kloetinge',
+   location: [51.5002, 3.9126],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Kloetinge',
+   ticketLink: 'https://www.vvkloetinge.nl/'
+ },
+ {
+   name: 'ODIN \'59',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Heemskerk',
+   location: [52.5134, 4.6757],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/ODIN_%2759',
+   ticketLink: 'https://www.odin59.nl/'
+ },
+ {
+   name: 'RKAV Volendam',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Volendam',
+   location: [52.5013, 5.0653],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/RKAV_Volendam',
+   ticketLink: 'https://www.rkav-volendam.nl/'
+ },
+ {
+   name: 'SC Genemuiden',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Genemuiden',
+   location: [52.6146, 6.0386],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/SC_Genemuiden',
+   ticketLink: 'https://www.sc-genemuiden.nl/'
+ },
+ {
+   name: 'Sparta Nijkerk',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Nijkerk',
+   location: [52.2282, 5.5206],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Sparta_Nijkerk',
+   ticketLink: 'https://www.spartanijkerk.nl/'
+ },
+ {
+   name: 'Sportlust \'46',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Woerden',
+   location: [52.0860, 4.9091],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Sportlust_%2746',
+   ticketLink: 'https://www.sportlust46.nl/'
+ },
+ {
+   name: 'VV Staphorst',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Staphorst',
+   location: [52.6469, 6.2047],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/VV_Staphorst',
+   ticketLink: 'https://www.vvstaphorst.nl/'
+ },
+ {
+   name: 'Urk',
+   league: 'Derde Divisie Zaterdag',
+   city: 'Urk',
+   location: [52.6617, 5.6024],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/SV_Urk',
+   ticketLink: 'https://www.svurk.nl/'
+ },
+ {
+   name: 'AWC Wijchen',
+   league: 'Derde Divisie Zondag',
+   city: 'Wijchen',
+   location: [51.8145, 5.7167],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/AWC_Wijchen',
+   ticketLink: 'https://www.awcwijchen.nl/'
+ },
+ {
+   name: 'Blauw Geel \'38',
+   league: 'Derde Divisie Zondag',
+   city: 'Veghel',
+   location: [51.6179, 5.5322],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Blauw_Geel_%2738',
+   ticketLink: 'https://www.blauwgeel.nl/'
+ },
+ {
+   name: 'DEM',
+   league: 'Derde Divisie Zondag',
+   city: 'Beverwijk',
+   location: [52.4789, 4.6474],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/DEM_(football_club)',
+   ticketLink: 'https://www.dem-beverwijk.nl/'
+ },
+ {
+   name: 'Gemert',
+   league: 'Derde Divisie Zondag',
+   city: 'Gemert',
+   location: [51.5550, 5.7042],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Gemert_(football_club)',
+   ticketLink: 'https://www.vvgemert.nl/'
+ },
+ {
+   name: 'Groene Ster',
+   league: 'Derde Divisie Zondag',
+   city: 'Heerlerheide',
+   location: [50.9038, 5.9604],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Groene_Ster',
+   ticketLink: 'https://www.rkvvgoenester.nl/'
+ },
+ {
+   name: 'GVV Unitas',
+   league: 'Derde Divisie Zondag',
+   city: 'Gorinchem',
+   location: [51.8471, 4.9747],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/GVV_Unitas',
+   ticketLink: 'https://www.gvvunitas.nl/'
+ },
+ {
+   name: 'Hoogeveen',
+   league: 'Derde Divisie Zondag',
+   city: 'Hoogeveen',
+   location: [52.7257, 6.4901],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/VV_Hoogeveen',
+   ticketLink: 'https://www.hoogeveen.nl/'
+ },
+ {
+   name: 'HSC\'21',
+   league: 'Derde Divisie Zondag',
+   city: 'Haaksbergen',
+   location: [52.1629, 6.7405],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/HSC_%2721',
+   ticketLink: 'https://www.hsc21.nl/'
+ },
+ {
+   name: 'Kampong Utrecht',
+   league: 'Derde Divisie Zondag',
+   city: 'Utrecht',
+   location: [52.0762, 5.1374],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Kampong_(sports_club)',
+   ticketLink: 'https://kampong.nl/'
+ },
+ {
+   name: 'OJC Rosmalen',
+   league: 'Derde Divisie Zondag',
+   city: 'Rosmalen',
+   location: [51.7039, 5.3466],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/OJC_Rosmalen',
+   ticketLink: 'https://www.ojcrosmalen.nl/'
+ },
+ {
+   name: 'OSS \'20',
+   league: 'Derde Divisie Zondag',
+   city: 'Oss',
+   location: [51.7590, 5.5389],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/OSS_%2720',
+   ticketLink: 'https://www.oss20.nl/'
+ },
+ {
+   name: 'Quick',
+   league: 'Derde Divisie Zondag',
+   city: 'The Hague',
+   location: [52.0639, 4.3067],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/Quick_(football_club)',
+   ticketLink: 'https://www.quick.nl/'
+ },
+ {
+   name: 'SV Meerssen',
+   league: 'Derde Divisie Zondag',
+   city: 'Meerssen',
+   location: [50.8836, 5.7561],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/SV_Meerssen',
+   ticketLink: 'https://www.svmeerssen.nl/'
+ },
+ {
+   name: 'TEC',
+   league: 'Derde Divisie Zondag',
+   city: 'Tiel',
+   location: [51.8892, 5.4430],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/TEC_(football_club)',
+   ticketLink: 'https://www.svtec.nl/'
+ },
+ {
+   name: 'TOGB',
+   league: 'Derde Divisie Zondag',
+   city: 'Berkel en Rodenrijs',
+   location: [51.9983, 4.4660],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/TOGB',
+   ticketLink: 'https://www.togb.nl/'
+ },
+ {
+   name: 'UNA',
+   league: 'Derde Divisie Zondag',
+   city: 'Veldhoven',
+   location: [51.4094, 5.3997],
+   color: 'unknown',
+   link: 'https://en.wikipedia.org/wiki/VV_UNA',
+   ticketLink: 'https://www.vvuna.nl/'
+ }
+];
+
+
+
+const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+ const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+
+ const baseMaps = {
+   "Dark Map": darkLayer,
+   "Light Map": lightLayer
+ };
+
+ const map = L.map('mapid', {
+   center: [52.1326, 5.2913],
+   zoom: 7,
+   layers: [darkLayer] // Dark Layer by default
+ });
+
+ L.control.layers(baseMaps).addTo(map); // Add the control to the map
+
+ const clubMarkers = {};
+
+ clubs.forEach(club => {
+   const clubLatLng = club.location;
+
+   const markerIcon = L.divIcon({
+     className: 'club-marker-icon',
+     html: `<img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">`,
+     iconSize: 'auto',
+     iconAnchor: 'auto'
+   });
+
+   function getLogoPath(clubName) {
+     if (clubName.startsWith('Jong ')) {
+       clubName = clubName.substring(5); // Remove "Jong " prefix
+     }
+     return `${clubName}.png`;
+   }
+
+   const marker = L.marker(clubLatLng, { icon: markerIcon })
+     .addTo(map)
+     .bindPopup(`
+       <b>${club.name}</b><br>
+       ${club.league}<br>
+       <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+       <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+       <div style="display: flex; justify-content: center; margin-top: 10px;">
+         <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+       </div>
+     `);
+
+   clubMarkers[club.name] = marker;
+ });
+
+ const searchInput = document.getElementById('search-input');
+ const searchSuggestions = document.getElementById('search-suggestions');
+
+ searchInput.addEventListener('input', (e) => {
+   const searchValue = e.target.value.toLowerCase();
+   const filteredClubs = clubs.filter(club => club.name.toLowerCase().includes(searchValue));
+
+   // Clear previous suggestions
+   searchSuggestions.innerHTML = '';
+
+   // Add new suggestions
+   filteredClubs.forEach(club => {
+     const suggestion = document.createElement('div');
+     suggestion.classList.add('suggestion');
+     suggestion.textContent = club.name;
+     suggestion.addEventListener('click', () => {
+       searchInput.value = club.name;
+       searchSuggestions.innerHTML = '';
+       map.setView(clubMarkers[club.name].getLatLng(), 12);
+       // Update map markers based on selected club
+       // ...
+     });
+     searchSuggestions.appendChild(suggestion);
+   });
+
+   // Show/hide suggestions based on input value
+   if (filteredClubs.length > 0) {
+     searchSuggestions.style.display = 'block';
+   } else {
+     searchSuggestions.style.display = 'none';
+   }
+ });
+
+ document.addEventListener('click', (e) => {
+   if (!searchInput.contains(e.target)) {
+     searchSuggestions.style.display = 'none';
+   }
+ });
+
+ document.getElementById('league-filter').addEventListener('change', (e) => {
+   const leagueFilter = e.target.value;
+
+   for (const club of clubs) {
+     if (!leagueFilter || club.league === leagueFilter) {
+       clubMarkers[club.name].addTo(map);
+     } else {
+       clubMarkers[club.name].remove();
+     }
+   }
+ });
+
+ const radiusSlider = document.getElementById('radius-slider');
+ const radiusValue = document.getElementById('radius-value');
+
+ radiusSlider.addEventListener('input', (e) => {
+   const searchRadius = parseInt(e.target.value);
+
+   // Update radius value display
+   radiusValue.textContent = searchRadius;
+
+   const userLocation = map.getCenter();
+   const radius = L.circle(userLocation, {
+     radius: searchRadius * 1000, // Convert to meters
+     color: 'rgba(0, 0, 0, 0.0)', // Light gray with transparency
+     fillOpacity: 0.2,
+   }).addTo(map);
+
+   const leagueFilter = document.getElementById('league-filter').value;
+
+   for (const club of clubs) {
+     const clubLatLng = L.latLng(clubMarkers[club.name].getLatLng());
+     if (clubLatLng.distanceTo(userLocation) <= searchRadius * 1000 &&
+       (!leagueFilter || club.league === leagueFilter)) { // Check both distance and league
+       clubMarkers[club.name].addTo(map);
+     } else {
+       clubMarkers[club.name].remove();
+     }
+   }
+ });
+
+ // Fetch the XLSX file
+ fetch('matches.xlsx')
+   .then(response => response.arrayBuffer())
+   .then(arrayBuffer => {
+     // Convert the data to a binary string
+     const data = new Uint8Array(arrayBuffer);
+     let binary = '';
+     data.forEach(byte => {
+       binary += String.fromCharCode(byte);
+     });
+
+     // Read the XLSX file
+     const workbook = XLSX.read(binary, { type: 'binary' });
+     const sheetName = workbook.SheetNames[0];
+     const worksheet = workbook.Sheets[sheetName];
+
+     // Parse the XLSX file
+     const matches = XLSX.utils.sheet_to_json(worksheet);
+
+     function getMatchesOnDate(matches, date) {
+       // Make sure the date is in the 'YYYY-MM-DD' format
+       const selectedDate = new Date(date);
+
+       const matchesOnDate = matches.filter(match => {
+         const matchDate = new Date(match.Date);
+         return matchDate.getTime() === selectedDate.getTime();
+       });
+
+       return matchesOnDate;
+     }
+
+     function displayMatchesOnDate(matchesOnDate) {
+  // First, remove all markers
+  for (const club of clubs) {
+    clubMarkers[club.name].remove();
+  }
+
+  // Then add markers for clubs that have matches on the selected date
+  const clubsWithMatches = new Set();
+  matchesOnDate.forEach(match => {
+    clubsWithMatches.add(match.HomeTeam);
+    clubsWithMatches.add(match.AwayTeam);
+  });
+
+  for (const club of clubs) {
+    if (clubsWithMatches.has(club.name)) {
+      clubMarkers[club.name].addTo(map);
+    }
+  }
+}
+
+     // Get the matches on the selected date and display them
+     const selectedDate = document.getElementById('date-input').value;
+     const matchesOnDate = getMatchesOnDate(matches, selectedDate);
+     displayMatchesOnDate(matchesOnDate);
+
+     document.getElementById('date-input').addEventListener('change', function (e) {
+       const selectedDate = e.target.value;
+       const matchesOnDate = getMatchesOnDate(matches, selectedDate);
+       displayMatchesOnDate(matchesOnDate);
+     });
+   });
+
+ function addCurrentUserLocation() {
+   navigator.geolocation.getCurrentPosition(
+     (position) => {
+       const { latitude, longitude } = position.coords;
+       const userLocation = L.latLng(latitude, longitude);
+       const userMarker = L.circleMarker(userLocation, {
+         color: 'blue',
+         fillColor: 'blue',
+         fillOpacity: 1,
+         radius: 6,
+       }).addTo(map);
+       userMarker.bindPopup('Your Location').openPopup();
+     },
+     (error) => {
+       console.error('Error retrieving location:', error);
+     }
+   );
+ }
+
+ map.on('load', () => {
+   // Call the function to add the user's location marker
+   addCurrentUserLocation();
+ });
+</script>
+</body>
+</html>
