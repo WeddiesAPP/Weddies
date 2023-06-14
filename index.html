@@ -1020,225 +1020,236 @@ ticketLink: 'https://www.vvv-venlo.nl/nl/tickets'
  }
 ];
 
-
-
 const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
- const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+const lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
 
- const baseMaps = {
-   "Dark Map": darkLayer,
-   "Light Map": lightLayer
- };
+const baseMaps = {
+  "Dark Map": darkLayer,
+  "Light Map": lightLayer
+};
 
- const map = L.map('mapid', {
-   center: [52.1326, 5.2913],
-   zoom: 7,
-   layers: [darkLayer] // Dark Layer by default
- });
+const map = L.map('mapid', {
+  center: [52.1326, 5.2913],
+  zoom: 7,
+  layers: [darkLayer] // Dark Layer by default
+});
 
- L.control.layers(baseMaps).addTo(map); // Add the control to the map
+L.control.layers(baseMaps).addTo(map); // Add the control to the map
 
- const clubMarkers = {};
+const clubMarkers = {};
 
- clubs.forEach(club => {
-   const clubLatLng = club.location;
+clubs.forEach(club => {
+  const clubLatLng = club.location;
 
-   const markerIcon = L.divIcon({
-     className: 'club-marker-icon',
-     html: `<img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">`,
-     iconSize: 'auto',
-     iconAnchor: 'auto'
-   });
-
-   function getLogoPath(clubName) {
-     if (clubName.startsWith('Jong ')) {
-       clubName = clubName.substring(5); // Remove "Jong " prefix
-     }
-      
-     return `${clubName}.png`;
-   }
-
-   const marker = L.marker(clubLatLng, { icon: markerIcon })
-     .addTo(map)
-     .bindPopup(`
-       <b>${club.name}</b><br>
-       ${club.league}<br>
-       <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
-       <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
-       <div style="display: flex; justify-content: center; margin-top: 10px;">
-         <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
-       </div>
-     `);
-
-   clubMarkers[club.name] = marker;
- });
-
- const searchInput = document.getElementById('search-input');
- const searchSuggestions = document.getElementById('search-suggestions');
-
- searchInput.addEventListener('input', (e) => {
-   const searchValue = e.target.value.toLowerCase();
-   const filteredClubs = clubs.filter(club => club.name.toLowerCase().includes(searchValue));
-
-   // Clear previous suggestions
-   searchSuggestions.innerHTML = '';
-
-   // Add new suggestions
-   filteredClubs.forEach(club => {
-     const suggestion = document.createElement('div');
-     suggestion.classList.add('suggestion');
-     suggestion.textContent = club.name;
-     suggestion.addEventListener('click', () => {
-       searchInput.value = club.name;
-       searchSuggestions.innerHTML = '';
-       map.setView(clubMarkers[club.name].getLatLng(), 12);
-       // Update map markers based on selected club
-       // ...
-     });
-     searchSuggestions.appendChild(suggestion);
-   });
-
-   // Show/hide suggestions based on input value
-   if (filteredClubs.length > 0) {
-     searchSuggestions.style.display = 'block';
-   } else {
-     searchSuggestions.style.display = 'none';
-   }
- });
-
- document.addEventListener('click', (e) => {
-   if (!searchInput.contains(e.target)) {
-     searchSuggestions.style.display = 'none';
-   }
- });
-
- document.getElementById('league-filter').addEventListener('change', (e) => {
-   const leagueFilter = e.target.value;
-
-   for (const club of clubs) {
-     if (!leagueFilter || club.league === leagueFilter) {
-       clubMarkers[club.name].addTo(map);
-     } else {
-       clubMarkers[club.name].remove();
-     }
-   }
- });
-
- const radiusSlider = document.getElementById('radius-slider');
- const radiusValue = document.getElementById('radius-value');
-
- radiusSlider.addEventListener('input', (e) => {
-   const searchRadius = parseInt(e.target.value);
-
-   // Update radius value display
-   radiusValue.textContent = searchRadius;
-
-   const userLocation = map.getCenter();
-   const radius = L.circle(userLocation, {
-     radius: searchRadius * 1000, // Convert to meters
-     color: 'rgba(0, 0, 0, 0.0)', // Light gray with transparency
-     fillOpacity: 0.2,
-   }).addTo(map);
-
-   const leagueFilter = document.getElementById('league-filter').value;
-
-   for (const club of clubs) {
-     const clubLatLng = L.latLng(clubMarkers[club.name].getLatLng());
-     if (clubLatLng.distanceTo(userLocation) <= searchRadius * 1000 &&
-       (!leagueFilter || club.league === leagueFilter)) { // Check both distance and league
-       clubMarkers[club.name].addTo(map);
-     } else {
-       clubMarkers[club.name].remove();
-     }
-   }
- });
-
- // Fetch the XLSX file
- fetch('matches.xlsx')
-   .then(response => response.arrayBuffer())
-   .then(arrayBuffer => {
-     // Convert the data to a binary string
-     const data = new Uint8Array(arrayBuffer);
-     let binary = '';
-     data.forEach(byte => {
-       binary += String.fromCharCode(byte);
-     });
-
-     // Read the XLSX file
-     const workbook = XLSX.read(binary, { type: 'binary' });
-     const sheetName = workbook.SheetNames[0];
-     const worksheet = workbook.Sheets[sheetName];
-
-     // Parse the XLSX file
-     const matches = XLSX.utils.sheet_to_json(worksheet);
-
-     function getMatchesOnDate(matches, date) {
-       // Make sure the date is in the 'YYYY-MM-DD' format
-       const selectedDate = new Date(date);
-
-       const matchesOnDate = matches.filter(match => {
-         const matchDate = new Date(match.Date);
-         return matchDate.getTime() === selectedDate.getTime();
-       });
-
-       return matchesOnDate;
-     }
-
-     function displayMatchesOnDate(matchesOnDate) {
-  // First, remove all markers
-  for (const club of clubs) {
-    clubMarkers[club.name].remove();
-  }
-
-  // Then add markers for clubs that have matches on the selected date
-  const clubsWithMatches = new Set();
-  matchesOnDate.forEach(match => {
-    clubsWithMatches.add(match.HomeTeam);
-    clubsWithMatches.add(match.AwayTeam);
+  const markerIcon = L.divIcon({
+    className: 'club-marker-icon',
+    html: `<img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">`,
+    iconSize: 'auto',
+    iconAnchor: 'auto'
   });
 
+  function getLogoPath(clubName) {
+    if (clubName.startsWith('Jong ')) {
+      clubName = clubName.substring(5); // Remove "Jong " prefix
+    }
+    clubName = clubName.toLowerCase();
+    return `${clubName}.png`;
+  }
+
+  const marker = L.marker(clubLatLng, { icon: markerIcon })
+    .addTo(map)
+    .bindPopup(`
+      <b>${club.name}</b><br>
+      ${club.league}<br>
+      <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+      <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+      <div style="display: flex; justify-content: center; margin-top: 10px;">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+      </div>
+    `);
+
+  clubMarkers[club.name] = marker;
+});
+
+const searchInput = document.getElementById('search-input');
+const searchSuggestions = document.getElementById('search-suggestions');
+
+searchInput.addEventListener('input', (e) => {
+  const searchValue = e.target.value.toLowerCase();
+  const filteredClubs = clubs.filter(club => club.name.toLowerCase().includes(searchValue));
+
+  // Clear previous suggestions
+  searchSuggestions.innerHTML = '';
+
+  // Add new suggestions
+  filteredClubs.forEach(club => {
+    const suggestion = document.createElement('div');
+    suggestion.classList.add('suggestion');
+    suggestion.textContent = club.name;
+    suggestion.addEventListener('click', () => {
+      searchInput.value = club.name;
+      searchSuggestions.innerHTML = '';
+      map.setView(clubMarkers[club.name].getLatLng(), 12);
+      // Update map markers based on selected club
+      // ...
+    });
+    searchSuggestions.appendChild(suggestion);
+  });
+
+  // Show/hide suggestions based on input value
+  if (filteredClubs.length > 0) {
+    searchSuggestions.style.display = 'block';
+  } else {
+    searchSuggestions.style.display = 'none';
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!searchInput.contains(e.target)) {
+    searchSuggestions.style.display = 'none';
+  }
+});
+
+document.getElementById('league-filter').addEventListener('change', (e) => {
+  const leagueFilter = e.target.value;
+
   for (const club of clubs) {
-    if (clubsWithMatches.has(club.name)) {
+    if (!leagueFilter || club.league === leagueFilter) {
       clubMarkers[club.name].addTo(map);
+    } else {
+      clubMarkers[club.name].remove();
     }
   }
+});
+
+const radiusSlider = document.getElementById('radius-slider');
+const radiusValue = document.getElementById('radius-value');
+
+radiusSlider.addEventListener('input', (e) => {
+  const searchRadius = parseInt(e.target.value);
+
+  // Update radius value display
+  radiusValue.textContent = searchRadius;
+
+  const userLocation = map.getCenter();
+  const radius = L.circle(userLocation, {
+    radius: searchRadius * 1000, // Convert to meters
+    color: 'rgba(0, 0, 0, 0.0)', // Light gray with transparency
+    fillOpacity: 0.2,
+  }).addTo(map);
+
+  const leagueFilter = document.getElementById('league-filter').value;
+
+  for (const club of clubs) {
+    const clubLatLng = L.latLng(clubMarkers[club.name].getLatLng());
+    if (clubLatLng.distanceTo(userLocation) <= searchRadius * 1000 &&
+      (!leagueFilter || club.league === leagueFilter)) { // Check both distance and league
+      clubMarkers[club.name].addTo(map);
+    } else {
+      clubMarkers[club.name].remove();
+    }
+  }
+});
+
+// Fetch the XLSX file
+fetch('matches.xlsx')
+  .then(response => response.arrayBuffer())
+  .then(arrayBuffer => {
+    // Convert the data to a binary string
+    const data = new Uint8Array(arrayBuffer);
+    let binary = '';
+    data.forEach(byte => {
+      binary += String.fromCharCode(byte);
+    });
+
+    // Read the XLSX file
+    const workbook = XLSX.read(binary, { type: 'binary' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Parse the XLSX file
+    const matches = XLSX.utils.sheet_to_json(worksheet);
+
+    function getMatchesOnDate(matches, date) {
+      // Make sure the date is in the 'YYYY-MM-DD' format
+      const selectedDate = new Date(date);
+
+      const matchesOnDate = matches.filter(match => {
+        const matchDate = new Date(match.Date);
+        return matchDate.getTime() === selectedDate.getTime();
+      });
+
+      return matchesOnDate;
+    }
+
+    function displayMatchesOnDate(matchesOnDate) {
+      // First, remove all markers
+      for (const club of clubs) {
+        clubMarkers[club.name].remove();
+      }
+
+      // Then add markers for clubs that have matches on the selected date
+      const clubsWithMatches = new Set();
+      matchesOnDate.forEach(match => {
+        clubsWithMatches.add(match.HomeTeam);
+        clubsWithMatches.add(match.AwayTeam);
+      });
+
+      for (const club of clubs) {
+        if (clubsWithMatches.has(club.name)) {
+          clubMarkers[club.name].addTo(map);
+        }
+      }
+    }
+
+    // Function to handle date change
+    function handleDateChange(e) {
+      const selectedDate = e.target.value;
+
+      if (selectedDate) {
+        const matchesOnDate = getMatchesOnDate(matches, selectedDate);
+        displayMatchesOnDate(matchesOnDate);
+      } else {
+        // No date selected, show all clubs
+        for (const club of clubs) {
+          clubMarkers[club.name].addTo(map);
+        }
+      }
+    }
+
+    // Get the matches on the selected date and display them
+    const dateInput = document.getElementById('date-input');
+    dateInput.addEventListener('change', handleDateChange);
+
+    // Call the function initially with the current date
+    const currentDate = new Date().toISOString().slice(0, 10);
+    handleDateChange({ target: { value: currentDate } });
+  });
+
+function addCurrentUserLocation() {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      const userLocation = L.latLng(latitude, longitude);
+      const userMarker = L.circleMarker(userLocation, {
+        color: 'blue',
+        fillColor: 'blue',
+        fillOpacity: 1,
+        radius: 6,
+      }).addTo(map);
+      userMarker.bindPopup('Your Location').openPopup();
+    },
+    (error) => {
+      console.error('Error retrieving location:', error);
+    }
+  );
 }
 
-     // Get the matches on the selected date and display them
-     const selectedDate = document.getElementById('date-input').value;
-     const matchesOnDate = getMatchesOnDate(matches, selectedDate);
-     displayMatchesOnDate(matchesOnDate);
+map.on('load', () => {
+  // Call the function to add the user's location marker
+  addCurrentUserLocation();
+});
 
-     document.getElementById('date-input').addEventListener('change', function (e) {
-       const selectedDate = e.target.value;
-       const matchesOnDate = getMatchesOnDate(matches, selectedDate);
-       displayMatchesOnDate(matchesOnDate);
-     });
-   });
-
- function addCurrentUserLocation() {
-   navigator.geolocation.getCurrentPosition(
-     (position) => {
-       const { latitude, longitude } = position.coords;
-       const userLocation = L.latLng(latitude, longitude);
-       const userMarker = L.circleMarker(userLocation, {
-         color: 'blue',
-         fillColor: 'blue',
-         fillOpacity: 1,
-         radius: 6,
-       }).addTo(map);
-       userMarker.bindPopup('Your Location').openPopup();
-     },
-     (error) => {
-       console.error('Error retrieving location:', error);
-     }
-   );
- }
-
- map.on('load', () => {
-   // Call the function to add the user's location marker
-   addCurrentUserLocation();
- });
 </script>
 </body>
 </html>
