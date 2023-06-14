@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Club Details</title>
+  <style>
+    #map {
+      width: 100%;
+      height: 400px;
+    }
+    #images {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+    }
+    #images img {
+      max-width: 100px;
+      max-height: 100px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1 id="name"></h1>
+    <p id="league"></p>
+    <div id="map"></div>
+    <div id="images"></div>
+    <p id="description"></p>
+    <a id="link" href="#" target="_blank"></a>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ol@6.6.1/dist/ol.js"></script>
+  <script>
+    // Assuming you have an array of club data
+    const clubData = [
+      {
+        logo: 'path/to/logo1.jpg',
+        name: 'Club 1',
+        league: 'League 1',
+        location: { latitude: 51.5074, longitude: -0.1278 },
+        images: ['path/to/image1.jpg', 'path/to/image2.jpg'],
+        description: 'Club 1 Description',
+        link: 'https://www.example.com/club1'
+      },
+      {
+        logo: 'path/to/logo2.jpg',
+        name: 'Club 2',
+        league: 'League 2',
+        location: { latitude: 40.7128, longitude: -74.0060 },
+        images: ['path/to/image3.jpg', 'path/to/image4.jpg'],
+        description: 'Club 2 Description',
+        link: 'https://www.example.com/club2'
+      }
+    ];
+
+    // Assuming you want to display the first club in the array
+    const club = clubData[0];
+
+    document.getElementById('name').textContent = club.name;
+    document.getElementById('league').textContent = club.league;
+
+    const locationElement = document.getElementById('map');
+    const map = new ol.Map({
+      target: locationElement,
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([club.location.longitude, club.location.latitude]),
+        zoom: 12
+      })
+    });
+
+    const imagesElement = document.getElementById('images');
+    club.images.forEach(image => {
+      const imgElement = document.createElement('img');
+      imgElement.src = image;
+      imagesElement.appendChild(imgElement);
+    });
+
+    document.getElementById('description').textContent = club.description;
+    document.getElementById('link').href = club.link;
+    document.getElementById('link').textContent = 'Visit Club';
+  </script>
+</body>
+</html>
