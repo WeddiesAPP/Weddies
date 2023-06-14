@@ -26,7 +26,31 @@
       padding: 20px;
       z-index: 999;
   }
+  .search-container input[type="text"],
+  .search-container select,
+  .search-container input[type="range"] {
+    font-size: 18px;
+    padding: 10px;
+    width: 250px;
+  }
 
+  .search-container input[type="text"],
+  .search-container select {
+    height: 40px;
+  }
+
+  .search-container input[type="range"] {
+    height: 20px;
+  }
+  .search-container #date-section label,
+.search-container #date-input {
+  font-size: 18px;
+  padding: 10px;
+  height: 40px;
+}.search-container #search-section > * {
+  display: block;
+  margin-bottom: 10px;
+}
   #mapid {
       width: 100%;
       height: calc(100vh - 40px);
@@ -143,6 +167,10 @@
 
         <select id="league-filter">
             <option value="">All Leagues</option>
+            <option value="Premier League">Premier League</option>
+            <option value="Bundesliga">Bundesliga</option>
+            <option value="Ligue 1">Ligue 1</option>
+            <option value="Serie A">Serie A</option>
             <option value="Eredivisie">Eredivisie</option>
             <option value="Keuken Kampioen Divisie">Keuken Kampioen Divisie</option>
               <option value="Tweede Divisie">Tweede Divisie</option>
@@ -1017,7 +1045,695 @@ ticketLink: 'https://www.vvv-venlo.nl/nl/tickets'
    color: 'unknown',
    link: 'https://en.wikipedia.org/wiki/VV_UNA',
    ticketLink: 'https://www.vvuna.nl/'
- }
+ },
+ //Premier League
+ {
+name: 'AFC Bournemouth',
+league: 'Premier League',
+city: 'Bournemouth',
+location: [50.7353, -1.8381],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/AFC_Bournemouth',
+ticketLink: 'https://tickets.afcb.co.uk/Online/default.asp'
+},
+{
+name: 'Arsenal',
+league: 'Premier League',
+city: 'London',
+location: [51.5549, -0.1084],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Arsenal_F.C.',
+ticketLink: 'https://www.arsenal.com/tickets'
+},
+{
+name: 'Aston Villa',
+league: 'Premier League',
+city: 'Birmingham',
+location: [52.5095, -1.8843],
+color: 'claret',
+link: 'https://en.wikipedia.org/wiki/Aston_Villa_F.C.',
+ticketLink: 'https://tickets.avfc.co.uk/en-gb/categories/home'
+},
+{
+name: 'Brentford',
+league: 'Premier League',
+city: 'Brentford',
+location: [51.4882, -0.3027],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Brentford_F.C.',
+ticketLink: 'https://tickets.brentfordfc.com/'
+},
+{
+name: 'Brighton & Hove Albion',
+league: 'Premier League',
+city: 'Brighton',
+location: [50.8615, -0.0836],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Brighton_%26_Hove_Albion_F.C.',
+ticketLink: 'https://www.brightonandhovealbion.com/tickets/'
+},
+{
+name: 'Burnley',
+league: 'Premier League',
+city: 'Burnley',
+location: [53.7891, -2.2300],
+color: 'claret',
+link: 'https://en.wikipedia.org/wiki/Burnley_F.C.',
+ticketLink: 'https://www.burnleyfootballclub.com/tickets/'
+},
+{
+name: 'Chelsea',
+league: 'Premier League',
+city: 'London',
+location: [51.4817, -0.1908],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Chelsea_F.C.',
+ticketLink: 'https://www.chelseafc.com/en/tickets---membership/buy-tickets?pageTab=GENERAL%20ADMISSION'
+},
+{
+name: 'Crystal Palace',
+league: 'Premier League',
+city: 'London',
+location: [51.3983, -0.0854],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Crystal_Palace_F.C.',
+ticketLink: 'https://tickets.cpfc.co.uk/'
+},
+{
+name: 'Everton',
+league: 'Premier League',
+city: 'Liverpool',
+location: [53.4388, -2.9663],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Everton_F.C.',
+ticketLink: 'https://www.evertonfc.com/tickets/'
+},
+{
+name: 'Fulham',
+league: 'Premier League',
+city: 'London',
+location: [51.4742, -0.2218],
+color: 'black',
+link: 'https://en.wikipedia.org/wiki/Fulham_F.C.',
+ticketLink: 'https://www.fulhamfc.com/tickets/'
+},
+{
+name: 'Liverpool',
+league: 'Premier League',
+city: 'Liverpool',
+location: [53.4308, -2.9608],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Liverpool_F.C.',
+ticketLink: 'https://www.liverpoolfc.com/tickets/tickets-availability'
+},
+{
+name: 'Luton Town',
+league: 'Premier League',
+city: 'Luton',
+location: [51.8841, -0.4314],
+color: 'orange',
+link: 'https://en.wikipedia.org/wiki/Luton_Town_F.C.',
+ticketLink: 'https://www.lutontown.co.uk/tickets/'
+},
+{
+name: 'Manchester City',
+league: 'Premier League',
+city: 'Manchester',
+location: [53.4831, -2.2004],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Manchester_City_F.C.',
+ticketLink: 'https://tickets.mancity.com/en-GB/categories/Men%20Tickets'
+},
+{
+name: 'Manchester United',
+league: 'Premier League',
+city: 'Manchester',
+location: [53.4631, -2.2913],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Manchester_United_F.C.',
+ticketLink: 'https://www.manutd.com/en/tickets-and-hospitality/tickets'
+},
+{
+name: 'Newcastle United',
+league: 'Premier League',
+city: 'Newcastle upon Tyne',
+location: [54.9756, -1.6173],
+color: 'black',
+link: 'https://en.wikipedia.org/wiki/Newcastle_United_F.C.',
+ticketLink: 'https://www.nufc.co.uk/tickets/'
+},
+{
+name: 'Nottingham Forest',
+league: 'Premier League',
+city: 'Nottingham',
+location: [52.9399, -1.1321],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Nottingham_Forest_F.C.',
+ticketLink: 'https://www.nottinghamforest.co.uk/tickets/'
+},
+{
+name: 'Sheffield United',
+league: 'Premier League',
+city: 'Sheffield',
+location: [53.3889, -1.4709],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Sheffield_United_F.C.',
+ticketLink: 'https://tickets.sufc.co.uk/'
+},
+{
+name: 'Tottenham Hotspur',
+league: 'Premier League',
+city: 'London',
+location: [51.6043, -0.0666],
+color: 'white',
+link: 'https://en.wikipedia.org/wiki/Tottenham_Hotspur_F.C.',
+ticketLink: 'https://www.tottenhamhotspur.com/tickets/buy-tickets/'
+},
+{
+name: 'West Ham United',
+league: 'Premier League',
+city: 'London',
+location: [51.5387, 0.0166],
+color: 'claret',
+link: 'https://en.wikipedia.org/wiki/West_Ham_United_F.C.',
+ticketLink: 'https://www.whufc.com/tickets/match-tickets'
+},
+{
+name: 'Wolverhampton Wanderers',
+league: 'Premier League',
+city: 'Wolverhampton',
+location: [52.5901, -2.1301],
+color: 'gold',
+link: 'https://en.wikipedia.org/wiki/Wolverhampton_Wanderers_F.C.',
+ticketLink: 'https://www.wolves.co.uk/tickets/'
+},
+//Bundesliga
+{
+name: 'FC Augsburg',
+league: 'Bundesliga',
+city: 'Augsburg',
+location: [48.3715, 10.8983],
+color: 'green',
+link: 'https://en.wikipedia.org/wiki/FC_Augsburg',
+ticketLink: 'https://fcaugsburg.de/wns/tickets/'
+},
+{
+name: 'Bayer Leverkusen',
+league: 'Bundesliga',
+city: 'Leverkusen',
+location: [51.0365, 7.0046],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Bayer_04_Leverkusen',
+ticketLink: 'https://www.bayer04.de/en-us/tickets-and-tours'
+},
+{
+name: 'Bayern München',
+league: 'Bundesliga',
+city: 'Munich',
+location: [48.2187, 11.6240],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/FC_Bayern_Munich',
+ticketLink: 'https://fcbayern.com/en/tickets'
+},
+{
+name: 'VfL Bochum',
+league: 'Bundesliga',
+city: 'Bochum',
+location: [51.4817, 7.2194],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/VfL_Bochum',
+ticketLink: 'https://www.vfl-bochum.de/Engagement/Tickets/'
+},
+{
+name: 'Borussia Dortmund',
+league: 'Bundesliga',
+city: 'Dortmund',
+location: [51.4926, 7.4511],
+color: 'yellow',
+link: 'https://en.wikipedia.org/wiki/Borussia_Dortmund',
+ticketLink: 'https://www.bvb.de/eng/Tickets/OnlineShop'
+},
+{
+name: 'Borussia Mönchengladbach',
+league: 'Bundesliga',
+city: 'Mönchengladbach',
+location: [51.1743, 6.3857],
+color: 'black',
+link: 'https://en.wikipedia.org/wiki/Borussia_M%C3%B6nchengladbach',
+ticketLink: 'https://www.borussia-ticketing.de/bmg/1'
+},
+{
+name: 'Darmstadt 98',
+league: 'Bundesliga',
+city: 'Darmstadt',
+location: [49.8617, 8.6439],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/SV_Darmstadt_98',
+ticketLink: 'https://www.sv98.de/tickets/'
+},
+{
+name: 'Eintracht Frankfurt',
+league: 'Bundesliga',
+city: 'Frankfurt',
+location: [50.0681, 8.6455],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Eintracht_Frankfurt',
+ticketLink: 'https://www.eintracht.de/en/tickets/'
+},
+{
+name: '1. FC Köln',
+league: 'Bundesliga',
+city: 'Cologne',
+location: [50.9333, 6.9333],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/1._FC_K%C3%B6ln',
+ticketLink: 'https://fc.de/en/fc-info/tickets/'
+},
+{
+name: 'SC Freiburg',
+league: 'Bundesliga',
+city: 'Freiburg',
+location: [48.0000, 7.8500],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/SC_Freiburg',
+ticketLink: 'https://www.scfreiburg.com/en/tickets'
+},
+{
+name: 'Heidenheim',
+league: 'Bundesliga',
+city: 'Heidenheim',
+location: [48.6769, 10.1493],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/1._FC_Heidenheim',
+ticketLink: 'https://www.fc-heidenheim.de/standard'
+},
+{
+name: '1899 Hoffenheim',
+league: 'Bundesliga',
+city: 'Hoffenheim',
+location: [49.2629, 8.8770],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/TSG_1899_Hoffenheim',
+ticketLink: 'https://www.tsg-hoffenheim.de/en/tickets/shop/'
+},
+{
+name: '1. FSV Mainz 05',
+league: 'Bundesliga',
+city: 'Mainz',
+location: [49.9846, 8.2244],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/1._FSV_Mainz_05',
+ticketLink: 'https://www.mainz05.de/tickets/eintrittskarten/'
+},
+{
+name: 'RB Leipzig',
+league: 'Bundesliga',
+city: 'Leipzig',
+location: [51.3450, 12.3433],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/RB_Leipzig',
+ticketLink: 'https://www.dierotenbullen.com/de/tickets/tickets-online-kaufen.html'
+},
+{
+name: 'VfB Stuttgart',
+league: 'Bundesliga',
+city: 'Stuttgart',
+location: [48.7927, 9.1770],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/VfB_Stuttgart',
+ticketLink: 'https://www.vfb.de/en/tickets/buying-tickets/'
+},
+{
+name: '1. FC Union Berlin',
+league: 'Bundesliga',
+city: 'Berlin',
+location: [52.4574, 13.5667],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/1._FC_Union_Berlin',
+ticketLink: 'https://www.fc-union-berlin.de/de/verein/heimspiele/tickets/'
+},
+{
+name: 'Werder Bremen',
+league: 'Bundesliga',
+city: 'Bremen',
+location: [53.0667, 8.8167],
+color: 'green',
+link: 'https://en.wikipedia.org/wiki/SV_Werder_Bremen',
+ticketLink: 'https://www.werder.de/en/tickets/'
+},
+{
+name: 'VfL Wolfsburg',
+league: 'Bundesliga',
+city: 'Wolfsburg',
+location: [52.4295, 10.7863],
+color: 'green',
+link: 'https://en.wikipedia.org/wiki/VfL_Wolfsburg',
+ticketLink: 'https://www.vfl-wolfsburg.de/en/tickets/ticketing/'
+},
+//Ligue 1
+{
+name: 'Stade Brest',
+league: 'Ligue 1',
+city: 'Brest',
+location: [48.4011, -4.4860],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Stade_Brestois_29',
+ticketLink: 'https://billetterie.sb29.bzh/'
+},
+{
+name: 'Clermont Foot',
+league: 'Ligue 1',
+city: 'Clermont-Ferrand',
+location: [45.7789, 3.0852],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Clermont_Foot',
+ticketLink: 'https://www.clermontfoot.com/billetterie'
+},
+{
+name: 'Le Havre',
+league: 'Ligue 1',
+city: 'Le Havre',
+location: [49.4944, 0.1079],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Le_Havre_AC',
+ticketLink: 'https://billetterie.hac-foot.com/'
+},
+{
+name: 'RC Lens',
+league: 'Ligue 1',
+city: 'Lens',
+location: [50.4289, 2.8236],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/RC_Lens',
+ticketLink: 'https://rclens.billetterie.webgazelle.net/'
+},
+{
+name: 'Lille',
+league: 'Ligue 1',
+city: 'Lille',
+location: [50.6293, 3.0573],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Lille_OSC',
+ticketLink: 'https://billetterie.losc.fr/'
+},
+{
+name: 'FC Lorient',
+league: 'Ligue 1',
+city: 'Lorient',
+location: [47.7486, -3.3661],
+color: 'orange',
+link: 'https://en.wikipedia.org/wiki/FC_Lorient',
+ticketLink: 'https://billetterie.fclweb.fr/'
+},
+{
+name: 'Olympique Lyonnais',
+league: 'Ligue 1',
+city: 'Lyon',
+location: [45.7597, 4.8422],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Olympique_Lyonnais',
+ticketLink: 'https://billetterie.ol.fr/'
+},
+{
+name: 'Olympique Marseille',
+league: 'Ligue 1',
+city: 'Marseille',
+location: [43.2690, 5.3953],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Olympique_de_Marseille',
+ticketLink: 'https://billetterie.om.fr/'
+},
+{
+name: 'FC Metz',
+league: 'Ligue 1',
+city: 'Metz',
+location: [49.1127, 6.1767],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/FC_Metz',
+ticketLink: 'https://billetterie.fcmetz.com/'
+},
+{
+name: 'AS Monaco',
+league: 'Ligue 1',
+city: 'Monaco',
+location: [43.7308, 7.4197],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/AS_Monaco_FC',
+ticketLink: 'https://billetterie.asmonaco.com/'
+},
+{
+name: 'Montpellier',
+league: 'Ligue 1',
+city: 'Montpellier',
+location: [43.6135, 3.8777],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Montpellier_H%C3%A9rault_SC',
+ticketLink: 'https://billetterie.mhscfoot.com/'
+},
+{
+name: 'FC Nantes',
+league: 'Ligue 1',
+city: 'Nantes',
+location: [47.2490, -1.5920],
+color: 'yellow',
+link: 'https://en.wikipedia.org/wiki/FC_Nantes',
+ticketLink: 'https://billetterie.fcnantes.com/'
+},
+{
+name: 'OGC Nice',
+league: 'Ligue 1',
+city: 'Nice',
+location: [43.7084, 7.2615],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/OGC_Nice',
+ticketLink: 'https://billetterie.ogcnice.com/'
+},
+{
+name: 'Paris Saint-Germain',
+league: 'Ligue 1',
+city: 'Paris',
+location: [48.8418, 2.2530],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Paris_Saint-Germain_F.C.',
+ticketLink: 'https://billetterie.psg.fr/'
+},
+{
+name: 'Stade Reims',
+league: 'Ligue 1',
+city: 'Reims',
+location: [49.2459, 4.0286],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Stade_de_Reims',
+ticketLink: 'https://billetterie.stade-de-reims.com/'
+},
+{
+name: 'Stade Rennais',
+league: 'Ligue 1',
+city: 'Rennes',
+location: [48.1056, -1.6778],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Stade_Rennais_F.C.',
+ticketLink: 'https://www.billetterie-staderennais.fr/'
+},
+{
+name: 'Strasbourg',
+league: 'Ligue 1',
+city: 'Strasbourg',
+location: [48.5942, 7.7642],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/RC_Strasbourg_Alsace',
+ticketLink: 'https://billetterie.rcstrasbourgalsace.fr/'
+},
+{
+name: 'Toulouse',
+league: 'Ligue 1',
+city: 'Toulouse',
+location: [43.6045, 1.4440],
+color: 'purple',
+link: 'https://en.wikipedia.org/wiki/Toulouse_FC',
+ticketLink: 'https://billetterie.toulousefc.com/'
+},
+//Serie A
+{
+name: 'AC Milan',
+league: 'Serie A',
+city: 'Milan',
+location: [45.4789, 9.2360],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/AC_Milan',
+ticketLink: 'https://www.acmilan.com/en/tickets'
+},
+{
+name: 'Atalanta Bergamo',
+league: 'Serie A',
+city: 'Bergamo',
+location: [45.6939, 9.6694],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Atalanta_B.C.',
+ticketLink: 'https://www.atalanta.it/site/biglietteria.html'
+},
+{
+name: 'Bologna',
+league: 'Serie A',
+city: 'Bologna',
+location: [44.5189, 11.3276],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Bologna_F.C._1909',
+ticketLink: 'https://www.bolognafc.it/tickets/'
+},
+{
+name: 'Cagliari',
+league: 'Serie A',
+city: 'Cagliari',
+location: [39.2206, 9.1217],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Cagliari_Calcio',
+ticketLink: 'https://www.cagliaricalcio.com/tickets/buy'
+},
+{
+name: 'Empoli',
+league: 'Serie A',
+city: 'Empoli',
+location: [43.7167, 10.9500],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Empoli_F.C.',
+ticketLink: 'https://www.empolifc.com/biglietti/'
+},
+{
+name: 'Fiorentina',
+league: 'Serie A',
+city: 'Florence',
+location: [43.7808, 11.2827],
+color: 'purple',
+link: 'https://en.wikipedia.org/wiki/Fiorentina',
+ticketLink: 'https://en.violachannel.tv/biglietti.html'
+},
+{
+name: 'Frosinone',
+league: 'Serie A',
+city: 'Frosinone',
+location: [41.6417, 13.3422],
+color: 'yellow',
+link: 'https://en.wikipedia.org/wiki/Frosinone_Calcio',
+ticketLink: 'https://www.frosinonecalcio.com/biglietti/'
+},
+{
+name: 'Genoa',
+league: 'Serie A',
+city: 'Genoa',
+location: [44.4072, 8.9340],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Genoa_C.F.C.',
+ticketLink: 'https://genoacfc.it/la-biglietteria/'
+},
+{
+name: 'Internazionale',
+league: 'Serie A',
+city: 'Milan',
+location: [45.4781, 9.1231],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/Inter_Milan',
+ticketLink: 'https://www.inter.it/en/biglietti'
+},
+{
+name: 'Juventus',
+league: 'Serie A',
+city: 'Turin',
+location: [45.1096, 7.6419],
+color: 'black',
+link: 'https://en.wikipedia.org/wiki/Juventus_F.C.',
+ticketLink: 'https://www.juventus.com/en/tickets/pricing-and-sale/'
+},
+{
+name: 'Lazio',
+league: 'Serie A',
+city: 'Rome',
+location: [41.9341, 12.4548],
+color: 'light blue',
+link: 'https://en.wikipedia.org/wiki/S.S._Lazio',
+ticketLink: 'https://www.sslazio.it/it/biglietteria/biglietti'
+},
+{
+name: 'Lecce',
+league: 'Serie A',
+city: 'Lecce',
+location: [40.3570, 18.1779],
+color: 'yellow',
+link: 'https://en.wikipedia.org/wiki/U.S._Lecce',
+ticketLink: 'https://www.uslecce.it/section/biglietti/'
+},
+{
+name: 'Monza',
+league: 'Serie A',
+city: 'Monza',
+location: [45.5847, 9.2741],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/A.C._Monza',
+ticketLink: 'https://www.acmonza.com/biglietteria/'
+},
+{
+name: 'Napoli',
+league: 'Serie A',
+city: 'Naples',
+location: [40.8522, 14.2681],
+color: 'blue',
+link: 'https://en.wikipedia.org/wiki/S.S.C._Napoli',
+ticketLink: 'https://www.sscnapoli.it/static/content/biglietteria'
+},
+{
+name: 'AS Roma',
+league: 'Serie A',
+city: 'Rome',
+location: [41.9342, 12.4546],
+color: 'maroon',
+link: 'https://en.wikipedia.org/wiki/A.S._Roma',
+ticketLink: 'https://tickets.asroma.com/it/biglietti'
+},
+{
+name: 'Salernitana',
+league: 'Serie A',
+city: 'Salerno',
+location: [40.6824, 14.7685],
+color: 'light blue',
+link: 'https://en.wikipedia.org/wiki/U.S._Salernitana_1919',
+ticketLink: 'https://www.ussalernitana1919.it/biglietti/'
+},
+{
+name: 'Sassuolo',
+league: 'Serie A',
+city: 'Sassuolo',
+location: [44.5554, 10.7830],
+color: 'black',
+link: 'https://en.wikipedia.org/wiki/U.S._Sassuolo_Calcio',
+ticketLink: 'https://www.sassuolocalcio.it/en/biglietti/'
+},
+{
+name: 'Torino',
+league: 'Serie A',
+city: 'Turin',
+location: [45.0400, 7.6566],
+color: 'red',
+link: 'https://en.wikipedia.org/wiki/Torino_F.C.',
+ticketLink: 'https://biglietteria.torinofc.it/'
+},
+{
+name: 'Udinese',
+league: 'Serie A',
+city: 'Udine',
+location: [46.0661, 13.2348],
+color: 'black',
+link: 'https://en.wikipedia.org/wiki/Udinese_Calcio',
+ticketLink: 'https://www.udinese.it/ticketing/biglietti/'
+},
+{
+name: 'Hellas Verona',
+league: 'Serie A',
+city: 'Verona',
+location: [45.4408, 10.9945],
+color: 'yellow',
+link: 'https://en.wikipedia.org/wiki/Hellas_Verona_F.C.',
+ticketLink: 'https://www.hellasverona.it/it/ticketing'
+}
 ];
 
 const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
@@ -1044,8 +1760,8 @@ clubs.forEach(club => {
   const markerIcon = L.divIcon({
     className: 'club-marker-icon',
     html: `<img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">`,
-    iconSize: 'auto',
-    iconAnchor: 'auto'
+    iconSize: [50, 50], // specify the desired width and height of the logo image
+    iconAnchor: [25, 50] // specify the anchor point of the icon (x, y), where (0, 0) is the top-left corner
   });
 
   function getLogoPath(clubName) {
@@ -1059,12 +1775,17 @@ clubs.forEach(club => {
   const marker = L.marker(clubLatLng, { icon: markerIcon })
     .addTo(map)
     .bindPopup(`
-      <b>${club.name}</b><br>
-      ${club.league}<br>
-      <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
-      <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
-      <div style="display: flex; justify-content: center; margin-top: 10px;">
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+      <div style="display: flex; align-items: center;">
+        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 50px; height: 50px; margin-right: 10px;">
+        <div>
+          <b>${club.name}</b><br>
+          ${club.league}<br>
+          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+          <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+          <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+          </div>
+        </div>
       </div>
     `);
 

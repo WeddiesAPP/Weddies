@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Club Details</title>
+  <style>
+    #map {
+      width: 100%;
+      height: 800px;
+    }
+    
+    .club-marker {
+      background-color: red;
+      color: white;
+      padding: 4px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      position: absolute;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .club-marker:hover {
+      background-color: blue;
+    }
+    
+    #images {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    #images img {
+      max-width: 100px;
+      max-height: 100px;
+    }
+    
+    .club-info {
+      background-color: #f2f2f2;
+      padding: 10px;
+    }
+    
+    .club-info h2 {
+      margin-top: 0;
+    }
+    
+    .search-bar {
+      margin-bottom: 16px;
+      position: relative;
+    }
+    
+    .search-bar input[type="text"] {
+      width: 200px;
+      padding: 5px;
+      font-size: 16px;
+    }
+    
+    .search-bar button {
+      padding: 6px 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    #suggestionList {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      background-color: #f2f2f2;
+      border: 1px solid #ccc;
+      border-top: none;
+      display: none;
+    }
+    
+    #suggestionList li {
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    
+    #suggestionList li:hover {
+      background-color: #e0e0e0;
+    }
+    
+    #suggestionList li:first-child {
+      border-top: 1px solid #ccc;
+    }
+    
+    .league-selection {
+      padding: 8px;
+      background-color: blue;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    .league-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .league-list li {
+      cursor: pointer;
+      padding: 5px 10px;
+      background-color: #f2f2f2;
+      border-bottom: 1px solid #ccc;
+    }
+    
+    .league-list li:hover {
+      background-color: #e0e0e0;
+    }
+    
+    .league-list li.active {
+      background-color: #007bff;
+      color: #fff;
+    }
+    
+    .league-list li.active:hover {
+      background-color: #0056b3;
+    }
+    
+    .club-details-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      visibility: hidden;
+    }
+    
+    .club-details-container.show {
+      visibility: visible;
+    }
+    
+    .club-details {
+      background-color: #fff;
+      padding: 20px;
+      max-width: 400px;
+      text-align: center;
+      border-radius: 8px;
+      position: relative;
+    }
+    
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="club-info">
+    <h1 id="name"></h1>
+    <p id="league"></p>
+    <div id="map"></div>
+    <div id="images"></div>
+    <p id="description"></p>
+    <a id="link" href="#" target="_blank"></a>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search club...">
+    <ul id="suggestionList"></ul>
+    <button id="searchButton">Search</button>
+  </div>
+
+  <button class="league-selection" id="leagueSelectionButton">Select League</button>
+
+  <ul class="league-list" id="leagueList">
+    <li class="active">All Leagues</li>
+    <li>Premier League</li>
+    <li>La Liga</li>
+    <li>Eredivisie</li>
+    <li>Serie A</li>
+    <li>Ligue 1</li>
+  </ul>
+
+  <div class="club-details-container" id="clubDetailsContainer">
+    <div class="club-details" id="clubDetails">
+      <img id="clubDetailsLogo" src="" alt="">
+      <h2 id="clubDetailsName"></h2>
+      <p id="clubDetailsDescription"></p>
+      <a id="clubDetailsLink" href="#" target="_blank"></a>
+      <span class="close-button" id="closeButton">&times;</span>
+    </div>
+  </div>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Assuming you have an array of club data
+   const clubData = [
+  // Eredivisie Clubs
+  {
+    logo: 'path/to/eredivisie-logo1.jpg',
+    name: 'Ajax',
+    league: 'Eredivisie',
+    location: { latitude: 52.3105, longitude: 4.7683 },
+    images: ['path/to/eredivisie-image1.jpg', 'path/to/eredivisie-image2.jpg'],
+    description: 'Ajax Description',
+    link: 'https://www.example.com/ajax'
+  },
+  {
+    logo: 'path/to/eredivisie-logo2.jpg',
+    name: 'PSV',
+    league: 'Eredivisie',
+    location: { latitude: 51.4416, longitude: 5.4697 },
+    images: ['path/to/eredivisie-image3.jpg', 'path/to/eredivisie-image4.jpg'],
+    description: 'PSV Description',
+    link: 'https://www.example.com/psv'
+  },
+  {
+    logo: 'path/to/eredivisie-logo3.jpg',
+    name: 'Feyenoord',
+    league: 'Eredivisie',
+    location: { latitude: 51.8936, longitude: 4.5224 },
+    images: ['path/to/eredivisie-image5.jpg', 'path/to/eredivisie-image6.jpg'],
+    description: 'Feyenoord Description',
+    link: 'https://www.example.com/feyenoord'
+  },
+  {
+    logo: 'path/to/eredivisie-logo4.jpg',
+    name: 'AZ Alkmaar',
+    league: 'Eredivisie',
+    location: { latitude: 52.6309, longitude: 4.7402 },
+    images: ['path/to/eredivisie-image7.jpg', 'path/to/eredivisie-image8.jpg'],
+    description: 'AZ Alkmaar Description',
+    link: 'https://www.example.com/az-alkmaar'
+  },
+  // Add more Eredivisie clubs here
+
+  // Keuken Kampioen Clubs
+  {
+    logo: 'path/to/keukenkampioen-logo1.jpg',
+    name: 'SC Cambuur',
+    league: 'Keuken Kampioen',
+    location: { latitude: 53.2078, longitude: 5.7928 },
+    images: ['path/to/keukenkampioen-image1.jpg', 'path/to/keukenkampioen-image2.jpg'],
+    description: 'SC Cambuur Description',
+    link: 'https://www.example.com/sc-cambuur'
+  },
+  {
+    logo: 'path/to/keukenkampioen-logo2.jpg',
+    name: 'Go Ahead Eagles',
+    league: 'Keuken Kampioen',
+    location: { latitude: 52.2407, longitude: 6.1667 },
+    images: ['path/to/keukenkampioen-image3.jpg', 'path/to/keukenkampioen-image4.jpg'],
+    description: 'Go Ahead Eagles Description',
+    link: 'https://www.example.com/go-ahead-eagles'
+  },
+  {
+    logo: 'path/to/keukenkampioen-logo3.jpg',
+    name: 'FC Emmen',
+    league: 'Keuken Kampioen',
+    location: { latitude: 52.7894, longitude: 6.9214 },
+    images: ['path/to/keukenkampioen-image5.jpg', 'path/to/keukenkampioen-image6.jpg'],
+    description: 'FC Emmen Description',
+    link: 'https://www.example.com/fc-emmen'
+  },
+  {
+    logo: 'path/to/keukenkampioen-logo4.jpg',
+    name: 'NAC Breda',
+    league: 'Keuken Kampioen',
+    location: { latitude: 51.5911, longitude: 4.7761 },
+    images: ['path/to/keukenkampioen-image7.jpg', 'path/to/keukenkampioen-image8.jpg'],
+    description: 'NAC Breda Description',
+    link: 'https://www.example.com/nac-breda'
+  },
+  // Add more Keuken Kampioen clubs here
+
+];
+
+
+    // Create the map and set the initial view
+    const map = L.map('map').setView([51.5739, 4.7674], 12);
+
+    // Add the tile layer to the map
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add club markers to the map
+    clubData.forEach((club, index) => {
+      const marker = L.marker([club.location.latitude, club.location.longitude]).addTo(map);
+      marker.bindPopup(`<span class="club-marker">${index + 1}</span>`);
+
+      marker.on('click', () => {
+        displayClubInfo(index);
+      });
+    });
+
+    // Display club information when a marker is clicked
+    function displayClubInfo(index) {
+      const club = clubData[index];
+      document.getElementById('name').textContent = club.name;
+      document.getElementById('league').textContent = club.league;
+      document.getElementById('map').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('images').innerHTML = club.images.map(image => `<img src="${image}" alt="Club Image">`).join('');
+      document.getElementById('description').textContent = club.description;
+      document.getElementById('link').href = club.link;
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const suggestionList = document.getElementById('suggestionList');
+
+    searchInput.addEventListener('input', () => {
+      const searchQuery = searchInput.value.toLowerCase();
+      const searchResults = clubData.filter(club => club.name.toLowerCase().includes(searchQuery));
+
+      // Clear the suggestion list
+      suggestionList.innerHTML = '';
+
+      // Display search suggestions
+      searchResults.forEach(result => {
+        const listItem = document.createElement('li');
+        listItem.textContent = result.name;
+        listItem.addEventListener('click', () => {
+          searchInput.value = result.name;
+          displayClubInfo(clubData.indexOf(result));
+          suggestionList.style.display = 'none';
+        });
+        suggestionList.appendChild(listItem);
+      });
+
+      // Show or hide the suggestion list
+      suggestionList.style.display = searchResults.length > 0 ? 'block' : 'none';
+    });
+
+    // Handle search button click
+    const searchButton = document.getElementById('searchButton');
+    searchButton.addEventListener('click', () => {
+      const searchQuery = searchInput.value.toLowerCase();
+      const searchResult = clubData.find(club => club.name.toLowerCase() === searchQuery);
+
+      if (searchResult) {
+        displayClubInfo(clubData.indexOf(searchResult));
+      } else {
+        alert('Club not found');
+      }
+    });
+
+    // Select league functionality
+    const leagueSelectionButton = document.getElementById('leagueSelectionButton');
+    const leagueList = document.getElementById('leagueList');
+    const leagueItems = leagueList.getElementsByTagName('li');
+
+    leagueSelectionButton.addEventListener('click', () => {
+      leagueList.style.display = leagueList.style.display === 'block' ? 'none' : 'block';
+    });
+
+    for (let i = 0; i < leagueItems.length; i++) {
+      leagueItems[i].addEventListener('click', function () {
+        const selectedLeague = this.textContent;
+        leagueSelectionButton.textContent = selectedLeague;
+        leagueList.style.display = 'none';
+
+        // Filter clubs by selected league
+        const filteredClubs = clubData.filter(club => club.league === selectedLeague);
+        const firstClub = filteredClubs[0];
+
+        if (firstClub) {
+          displayClubInfo(clubData.indexOf(firstClub));
+        } else {
+          alert('No clubs found in the selected league');
+        }
+      });
+    }
+
+    // Club details container
+    const clubDetailsContainer = document.getElementById('clubDetailsContainer');
+    const clubDetails = document.getElementById('clubDetails');
+    const clubDetailsLogo = document.getElementById('clubDetailsLogo');
+    const clubDetailsName = document.getElementById('clubDetailsName');
+    const clubDetailsDescription = document.getElementById('clubDetailsDescription');
+    const clubDetailsLink = document.getElementById('clubDetailsLink');
+    const closeButton = document.getElementById('closeButton');
+
+    // Close button click event
+    closeButton.addEventListener('click', () => {
+      clubDetailsContainer.classList.remove('show');
+    });
+
+    // Display club details in the modal
+    function displayClubDetails(index) {
+      const club = clubData[index];
+      clubDetailsLogo.src = club.logo;
+      clubDetailsName.textContent = club.name;
+      clubDetailsDescription.textContent = club.description;
+      clubDetailsLink.href = club.link;
+      clubDetailsContainer.classList.add('show');
+    }
+
+  </script>
+</body>
+</html>

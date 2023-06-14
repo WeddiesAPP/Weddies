@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Club Map</title>
+  <style>
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ol@6.6.1/dist/ol.js"></script>
+  <script>
+    // Assuming you have an array of club data
+    const clubData = [
+      {
+        name: 'NAC Breda',
+        location: { latitude: 51.5739, longitude: 4.7674 }
+      },
+      {
+        name: 'Willem II',
+        location: { latitude: 51.5595, longitude: 5.0913 }
+      }
+    ];
+
+    // Create the map
+    const map = new ol.Map({
+      target: 'map',
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
+        })
+      ],
+      view: new ol.View({
+        center: ol.proj.fromLonLat([clubData[0].location.longitude, clubData[0].location.latitude]),
+        zoom: 12
+      })
+    });
+
+    // Create club markers
+    clubData.forEach(club => {
+      const marker = new ol.Overlay({
+        position: ol.proj.fromLonLat([club.location.longitude, club.location.latitude]),
+        positioning: 'center-center',
+        element: createClubMarkerElement(club.name),
+        stopEvent: false
+      });
+      map.addOverlay(marker);
+    });
+
+    function createClubMarkerElement(name) {
+      const element = document.createElement('div');
+      element.className = 'club-marker';
+      element.textContent = name;
+      return element;
+    }
+  </script>
+</body>
+</html>
