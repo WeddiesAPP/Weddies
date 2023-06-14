@@ -1054,6 +1054,7 @@ const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x
      if (clubName.startsWith('Jong ')) {
        clubName = clubName.substring(5); // Remove "Jong " prefix
      }
+         clubName = clubName.toLowerCase();
      return `${clubName}.png`;
    }
 
