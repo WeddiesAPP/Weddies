@@ -1229,10 +1229,11 @@ fetch('matches.xlsx')
         }
       }
     }
-    document.addEventListener('DOMContentLoaded', () => {
-      displayAllMarkers();
+
     });
     // Get the matches on the selected date and display them
+    document.addEventListener('DOMContentLoaded', () => {
+      displayAllMarkers();
     const dateInput = document.getElementById('date-input');
     dateInput.addEventListener('change', handleDateChange);
 
