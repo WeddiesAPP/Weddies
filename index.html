@@ -1769,7 +1769,13 @@ const map = L.map('mapid', {
 L.control.layers(baseMaps).addTo(map); // Add the control to the map
 
 const clubMarkers = {};
+function getLogoPath(clubName) {
+    if (clubName.startsWith('Jong ')) {
+      clubName = clubName.substring(5); // Remove "Jong " prefix
+    }
 
+    return `${clubName}.png`;
+  }
 clubs.forEach(club => {
   const clubLatLng = club.location;
 
@@ -1780,13 +1786,7 @@ clubs.forEach(club => {
     iconAnchor: [25, 50] // specify the anchor point of the icon (x, y), where (0, 0) is the top-left corner
   });
 
-  function getLogoPath(clubName) {
-    if (clubName.startsWith('Jong ')) {
-      clubName = clubName.substring(5); // Remove "Jong " prefix
-    }
-
-    return `${clubName}.png`;
-  }
+  
 
   const marker = L.marker(clubLatLng, { icon: markerIcon })
     .addTo(map)
@@ -1827,7 +1827,7 @@ clubs.forEach(club => {
         // Create logo element
         const logo = document.createElement('img');
         logo.classList.add('club-logo');
-        logo.src = club.logo;
+        logo.src =  getLogoPath(club.name);
         suggestion.appendChild(logo);
 
         // Create club name element
@@ -1860,11 +1860,7 @@ clubs.forEach(club => {
       }
     });
 
-document.addEventListener('click', (e) => {
-  if (!searchInput.contains(e.target)) {
-    searchSuggestions.style.display = 'none';
-  }
-});
+
 
 document.getElementById('league-filter').addEventListener('change', (e) => {
   const leagueFilter = e.target.value;
