@@ -1881,9 +1881,24 @@ clubs.forEach(club => {
 
 document.getElementById('league-filter').addEventListener('change', (e) => {
   const leagueFilter = e.target.value;
+  const searchRadius = parseInt(radiusSlider.value);
+
+  // Update radius value display
+  radiusValue.textContent = searchRadius;
+
+  const userLocation = map.getCenter();
+  const radius = L.circle(userLocation, {
+    radius: searchRadius * 1000, // Convert to meters
+    color: 'rgba(0, 0, 0, 0.0)', // Light gray with transparency
+    fillOpacity: 0.2,
+  }).addTo(map);
 
   for (const club of clubs) {
-    if (!leagueFilter || club.league === leagueFilter) {
+    const clubLatLng = L.latLng(clubMarkers[club.name].getLatLng());
+    if (
+      clubLatLng.distanceTo(userLocation) <= searchRadius * 1000 &&
+      (!leagueFilter || club.league === leagueFilter)
+    ) {
       clubMarkers[club.name].addTo(map);
     } else {
       clubMarkers[club.name].remove();
