@@ -17,7 +17,13 @@
       align-items: center;
       background-color: transparent;
   }
-
+.club-logo-2 {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
   .search-container {
       position: absolute;
       top: 20px;
@@ -1837,7 +1843,7 @@ clubs.forEach(club => {
 
         // Create logo element
         const logo = document.createElement('img');
-        logo.classList.add('club-logo');
+        logo.classList.add('club-logo-2');
         logo.src =  getLogoPath(club.name);
         suggestion.appendChild(logo);
 
