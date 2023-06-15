@@ -113,6 +113,22 @@
         #search-suggestions li:hover {
             background-color: #f8f9fa00;
         }
+#search-suggestions .club-logo {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        #search-suggestions .suggestion {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        #search-suggestions span {
+            margin-left: 5px;
+        }
 
         #mapid {
             width: 100%;
@@ -1792,38 +1808,57 @@ clubs.forEach(club => {
   clubMarkers[club.name] = marker;
 });
 
-const searchInput = document.getElementById('search-input');
-const searchSuggestions = document.getElementById('search-suggestions');
 
-searchInput.addEventListener('input', (e) => {
-  const searchValue = e.target.value.toLowerCase();
-  const filteredClubs = clubs.filter(club => club.name.toLowerCase().includes(searchValue));
+    const searchInput = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
 
-  // Clear previous suggestions
-  searchSuggestions.innerHTML = '';
+    searchInput.addEventListener('input', (e) => {
+      const searchValue = e.target.value.toLowerCase();
+      const filteredClubs = clubs.filter(club => club.name.toLowerCase().includes(searchValue));
 
-  // Add new suggestions
-  filteredClubs.forEach(club => {
-    const suggestion = document.createElement('div');
-    suggestion.classList.add('suggestion');
-    suggestion.textContent = club.name;
-    suggestion.addEventListener('click', () => {
-      searchInput.value = club.name;
+      // Clear previous suggestions
       searchSuggestions.innerHTML = '';
-      map.setView(clubMarkers[club.name].getLatLng(), 12);
-      // Update map markers based on selected club
-      // ...
-    });
-    searchSuggestions.appendChild(suggestion);
-  });
 
-  // Show/hide suggestions based on input value
-  if (filteredClubs.length > 0) {
-    searchSuggestions.style.display = 'block';
-  } else {
-    searchSuggestions.style.display = 'none';
-  }
-});
+      // Add new suggestions
+      filteredClubs.forEach(club => {
+        const suggestion = document.createElement('div');
+        suggestion.classList.add('suggestion');
+
+        // Create logo element
+        const logo = document.createElement('img');
+        logo.classList.add('club-logo');
+        logo.src = club.logo;
+        suggestion.appendChild(logo);
+
+        // Create club name element
+        const clubName = document.createElement('span');
+        clubName.textContent = club.name;
+        suggestion.appendChild(clubName);
+
+        suggestion.addEventListener('click', () => {
+          searchInput.value = club.name;
+          searchSuggestions.innerHTML = '';
+          map.setView(clubMarkers[club.name].getLatLng(), 12);
+          // Update map markers based on selected club
+          // ...
+        });
+
+        searchSuggestions.appendChild(suggestion);
+      });
+
+      // Show/hide suggestions based on input value
+      if (filteredClubs.length > 0) {
+        searchSuggestions.style.display = 'block';
+      } else {
+        searchSuggestions.style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target)) {
+        searchSuggestions.style.display = 'none';
+      }
+    });
 
 document.addEventListener('click', (e) => {
   if (!searchInput.contains(e.target)) {
