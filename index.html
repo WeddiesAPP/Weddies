@@ -2032,28 +2032,48 @@ fetch('matches.xlsx')
 window.addEventListener('load', () => {
   displayAllMarkers();
 });
-function addCurrentUserLocation() {
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      const userLocation = L.latLng(latitude, longitude);
-      const userMarker = L.circleMarker(userLocation, {
-        color: 'blue',
-        fillColor: 'blue',
-        fillOpacity: 1,
-        radius: 6,
-      }).addTo(map);
-      userMarker.bindPopup('Your Location').openPopup();
-    },
-    (error) => {
-      console.error('Error retrieving location:', error);
-    }
-  );
+
+window.addEventListener('load', () => {
+  displayAllMarkers();
+});
+function getUserLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const userLocation = L.latLng(latitude, longitude);
+        map.setView(userLocation, 12); // Set the map center to the user's location
+
+        // Create the outer circle with more opacity
+        const outerCircle = L.circle(userLocation, {
+          color: 'blue',
+          fillColor: 'blue',
+          fillOpacity: 0.2,
+          radius: 15,
+        }).addTo(map);
+
+        // Create the inner circle
+        const innerCircle = L.circle(userLocation, {
+          color: 'blue',
+          fillColor: 'blue',
+          fillOpacity: 0.5,
+          radius: 30,
+        }).addTo(map);
+
+        outerCircle.bindPopup('Your Location').openPopup();
+      },
+      (error) => {
+        console.error('Error retrieving location:', error);
+      }
+    );
+  } else {
+    console.error('Geolocation is not supported by this browser.');
+  }
 }
 
-map.on('load', () => {
-  // Call the function to add the user's location marker
-  addCurrentUserLocation();
+
+window.addEventListener('load', () => {
+  getUserLocation();
 });
 
 </script>
