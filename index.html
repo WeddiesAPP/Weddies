@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Weddies</title>
+    <title>Weddies - Your Club Search Engine</title>
+    <meta name="description" content="Find and discover clubs using Weddies, the ultimate club search engine. Search by club name, league, and date.">
+    <link rel="icon" href="Weddies-bg.png" type="image/x-icon">
+    <link rel="shortcut icon" href="Weddies.png" type="image/x-icon">
     <style>
-    body {
-      margin: 0;
-      padding: 0;
-  }
+          .leaflet-control-attribution {
+            display: none;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
 
   .container {
       position: relative;
@@ -177,7 +183,19 @@
   position: absolute;
   border-radius: 50%;
 }
-
+          .logo-weddies {
+            width: 128px;
+            height: 128px;
+            margin-right: 10px;
+        }
+  .logo-weddies-bg {
+    position: absolute;
+bottom: 20px;
+left: 20px;
+z-index: 999;
+width: 64px;
+height: 64px;
+}
 
 
     </style>
@@ -215,7 +233,7 @@
         <span id="radius-value">10</span> km
     </div>
   </div>
-    <div id="mapid"></div>
+    <div id="mapid"> <img src="Weddies-bg.png" alt="Logo" class="logo-weddies-bg"></div>
   </div>
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script>
