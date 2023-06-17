@@ -2394,7 +2394,7 @@ function getLogoPath(clubName) {
     return `${clubName}.png`;
   }
         function findUpcomingMatch(clubName, matches) {
-  const now = new Date();
+ const now = new Date(2023, 0, 1);
   for (let match of matches) {
     let matchDate = new Date(match.Date);
     if ((match.HomeTeam === clubName || match.AwayTeam === clubName) && matchDate > now) {
