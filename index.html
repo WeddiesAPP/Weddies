@@ -2393,6 +2393,16 @@ function getLogoPath(clubName) {
 
     return `${clubName}.png`;
   }
+        function findUpcomingMatch(clubName, matches) {
+  const now = new Date();
+  for (let match of matches) {
+    let matchDate = new Date(match.Date);
+    if ((match.HomeTeam === clubName || match.AwayTeam === clubName) && matchDate > now) {
+      return match;
+    }
+  }
+  return null;
+}
 clubs.forEach(club => {
   const clubLatLng = club.location;
 
@@ -2405,6 +2415,22 @@ clubs.forEach(club => {
     iconSize: [40, 40], // reduced by 20%
     iconAnchor: [20, 40] // reduced by 20%
   });
+  const upcomingMatch = findUpcomingMatch(club.name, matches);
+  let upcomingMatchHTML = '';
+  if (upcomingMatch) {
+    const opponent = upcomingMatch.HomeTeam === club.name ? upcomingMatch.AwayTeam : upcomingMatch.HomeTeam;
+    upcomingMatchHTML = `
+      <div style="margin-top: 10px;">
+        Upcoming match: <br>
+        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 20px; height: 20px;">
+        VS
+        <img src="${getLogoPath(opponent)}" alt="${opponent}" style="width: 20px; height: 20px;">
+        <br>
+        ${new Date(upcomingMatch.Date).toLocaleString()}
+      </div>
+    `;
+  }
+
   const marker = L.marker(clubLatLng, { icon: markerIcon })
     .addTo(map)
     .bindPopup(`
@@ -2419,6 +2445,7 @@ clubs.forEach(club => {
           <div style="display: flex; justify-content: center; margin-top: 10px;">
             <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
           </div>
+          ${upcomingMatchHTML}
         </div>
       </div>
     `);
