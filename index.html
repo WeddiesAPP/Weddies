@@ -2393,15 +2393,16 @@ function getLogoPath(clubName) {
 
     return `${clubName}.png`;
   }
-        function findUpcomingMatch(clubName, matches) {
- const now = new Date(2023, 0, 1);
+       function findUpcomingMatches(clubName, matches) {
+  const now = new Date(2023, 0, 1);
+  let futureMatches = [];
   for (let match of matches) {
     let matchDate = new Date(match.Date);
     if ((match.HomeTeam === clubName || match.AwayTeam === clubName) && matchDate > now) {
-      return match;
+      futureMatches.push(match);
     }
   }
-  return null;
+  return futureMatches;
 }
 clubs.forEach(club => {
   const clubLatLng = club.location;
@@ -2415,38 +2416,30 @@ clubs.forEach(club => {
     iconSize: [40, 40], // reduced by 20%
     iconAnchor: [20, 40] // reduced by 20%
   });
-  const upcomingMatch = findUpcomingMatch(club.name, matches);
-  let upcomingMatchHTML = '';
-  if (upcomingMatch) {
-    const opponent = upcomingMatch.HomeTeam === club.name ? upcomingMatch.AwayTeam : upcomingMatch.HomeTeam;
-    upcomingMatchHTML = `
-      <div style="margin-top: 10px;">
-        Upcoming match: <br>
+  const upcomingMatches = findUpcomingMatches(club.name, matches);
+  let upcomingMatchesHTML = '';
+  if (upcomingMatches.length > 0) {
+    upcomingMatchesHTML = `<div style="margin-top: 10px;">Upcoming matches: <br>`;
+    upcomingMatches.forEach(match => {
+      const opponent = match.HomeTeam === club.name ? match.AwayTeam : match.HomeTeam;
+      upcomingMatchesHTML += `
         <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 20px; height: 20px;">
         VS
         <img src="${getLogoPath(opponent)}" alt="${opponent}" style="width: 20px; height: 20px;">
         <br>
-        ${new Date(upcomingMatch.Date).toLocaleString()}
-      </div>
-    `;
+        ${new Date(match.Date).toLocaleString()}
+        <br>
+      `;
+    });
+    upcomingMatchesHTML += `</div>`;
   }
 
   const marker = L.marker(clubLatLng, { icon: markerIcon })
     .addTo(map)
     .bindPopup(`
       <div style="display: flex; align-items: center;">
-        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 40px; height: 40px; margin-right: 10px;">
-        <div>
-          <b>${club.name}</b><br>
-          ${club.league}<br>
-
-          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
-          <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
-          <div style="display: flex; justify-content: center; margin-top: 10px;">
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
-          </div>
-          ${upcomingMatchHTML}
-        </div>
+        <!-- ... other code ... -->
+        ${upcomingMatchesHTML}
       </div>
     `);
 
