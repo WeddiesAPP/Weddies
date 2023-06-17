@@ -2393,17 +2393,6 @@ function getLogoPath(clubName) {
 
     return `${clubName}.png`;
   }
-       function findUpcomingMatches(clubName, matches) {
-  const now = new Date(2023, 0, 1);
-  let futureMatches = [];
-  for (let match of matches) {
-    let matchDate = new Date(match.Date);
-    if ((match.HomeTeam === clubName || match.AwayTeam === clubName) && matchDate > now) {
-      futureMatches.push(match);
-    }
-  }
-  return futureMatches;
-}
 clubs.forEach(club => {
   const clubLatLng = club.location;
 
@@ -2416,30 +2405,21 @@ clubs.forEach(club => {
     iconSize: [40, 40], // reduced by 20%
     iconAnchor: [20, 40] // reduced by 20%
   });
-  const upcomingMatches = findUpcomingMatches(club.name, matches);
-  let upcomingMatchesHTML = '';
-  if (upcomingMatches.length > 0) {
-    upcomingMatchesHTML = `<div style="margin-top: 10px;">Upcoming matches: <br>`;
-    upcomingMatches.forEach(match => {
-      const opponent = match.HomeTeam === club.name ? match.AwayTeam : match.HomeTeam;
-      upcomingMatchesHTML += `
-        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 20px; height: 20px;">
-        VS
-        <img src="${getLogoPath(opponent)}" alt="${opponent}" style="width: 20px; height: 20px;">
-        <br>
-        ${new Date(match.Date).toLocaleString()}
-        <br>
-      `;
-    });
-    upcomingMatchesHTML += `</div>`;
-  }
-
   const marker = L.marker(clubLatLng, { icon: markerIcon })
     .addTo(map)
     .bindPopup(`
       <div style="display: flex; align-items: center;">
-        <!-- ... other code ... -->
-        ${upcomingMatchesHTML}
+        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 40px; height: 40px; margin-right: 10px;">
+        <div>
+          <b>${club.name}</b><br>
+          ${club.league}<br>
+
+          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+          <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+          <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+          </div>
+        </div>
       </div>
     `);
 
@@ -2616,8 +2596,6 @@ radiusSlider.addEventListener('input', (e) => {
 });
 
 // Fetch the XLSX file
-let matches = [];
-
 fetch('matches.xlsx')
   .then(response => response.arrayBuffer())
   .then(arrayBuffer => {
@@ -2634,9 +2612,8 @@ fetch('matches.xlsx')
     const worksheet = workbook.Sheets[sheetName];
 
     // Parse the XLSX file
-    matches = XLSX.utils.sheet_to_json(worksheet);
+    const matches = XLSX.utils.sheet_to_json(worksheet);
 
-    // The rest of your code that depends on matches goes here.
     function getMatchesOnDate(matches, date) {
       // Make sure the date is in the 'YYYY-MM-DD' format
       const selectedDate = new Date(date);
@@ -2650,21 +2627,17 @@ fetch('matches.xlsx')
     }
 
     function displayMatchesOnDate(matchesOnDate) {
-      // First, remove all markers
-      for (const club of clubs) {
-        clubMarkers[club.name].remove();
-      }
+  // First, remove all markers
+  for (const club of clubs) {
+    clubMarkers[club.name].remove();
+  }
 
-      // Display the matches on the specified date
-      // Add your code here to display the matches on the date
-    }
-
-    // Call the functions with the matches data
-    const selectedDate = '2023-01-01';
-    const matchesOnDate = getMatchesOnDate(matches, selectedDate);
-    displayMatchesOnDate(matchesOnDate);
-  })
-  .catch(error => console.error('Error:', error));
+  // Then add markers for clubs that have matches on the selected date
+  const clubsWithMatches = new Set();
+  matchesOnDate.forEach(match => {
+    clubsWithMatches.add(match.HomeTeam);
+    clubsWithMatches.add(match.AwayTeam);
+  });
 
   for (const club of clubs) {
     if (clubsWithMatches.has(club.name)) {
