@@ -2833,19 +2833,8 @@ fetch('matches.xlsx')
     // Parse the XLSX file
     const matches = XLSX.utils.sheet_to_json(worksheet);
 
-    function getMatchesOnDate(matches, date) {
-      // Make sure the date is in the 'YYYY-MM-DD' format
-      const selectedDate = new Date(date);
-
-      const matchesOnDate = matches.filter(match => {
-        const matchDate = new Date(match.Date);
-        return matchDate.getTime() === selectedDate.getTime();
-      });
-
-      return matchesOnDate;
-    }
-
-    function displayMatchesOnDate(matchesOnDate) {
+    // Function to display the markers for matches on a selected date
+function displayMatchesOnDate(matchesOnDate) {
   // First, remove all markers
   for (const club of clubs) {
     clubMarkers[club.name].remove();
@@ -2865,8 +2854,20 @@ fetch('matches.xlsx')
     // Store the home team marker for later use
     homeTeamMarkers.set(homeTeam, homeTeamMarker);
 
+    // Get the pixel offset to the right
+    const pixelOffset = 80; // Adjust as needed
+
+    // Get the coordinates of the away team marker
+    const awayTeamLatLng = clubMarkers[awayTeam].getLatLng();
+
+    // Calculate the coordinates for the home team marker with the offset
+    const homeTeamLatLng = L.latLng(awayTeamLatLng.lat, awayTeamLatLng.lng + (pixelOffset / 111320)); // 1 degree of longitude is approximately 111320 meters
+
+    // Move the home team marker to the new coordinates
+    homeTeamMarker.setLatLng(homeTeamLatLng);
+
     // Clone the home team marker and set its location to the away team location
-    const awayTeamMarker = L.marker(homeTeamMarker.getLatLng(), { icon: clubMarkers[awayTeam].options.icon })
+    const awayTeamMarker = L.marker(homeTeamLatLng, { icon: clubMarkers[awayTeam].options.icon })
       .addTo(map)
       .bindPopup(`
         <b>${awayTeam}</b><br>
@@ -2889,6 +2890,7 @@ fetch('matches.xlsx')
     clubMarkers[homeTeam] = homeTeamMarker;
   });
 }
+
     // Function to handle date change
     function handleDateChange(e) {
       const selectedDate = e.target.value;
