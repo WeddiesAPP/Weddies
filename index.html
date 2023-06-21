@@ -2851,33 +2851,43 @@ fetch('matches.xlsx')
     clubMarkers[club.name].remove();
   }
 
-  // Then add markers for clubs that have matches on the selected date
-  const clubsWithMatches = new Set();
+  // Create a map to store the club markers by home team name
+  const homeTeamMarkers = new Map();
+
   matchesOnDate.forEach(match => {
-    clubsWithMatches.add(match.HomeTeam);
-    clubsWithMatches.add(match.AwayTeam);
+    const homeTeam = match.HomeTeam;
+    const awayTeam = match.AwayTeam;
+
+    // Move the marker of the home team to its location
+    const homeTeamMarker = clubMarkers[homeTeam];
+    homeTeamMarker.setLatLng(homeTeamMarker.getLatLng());
+
+    // Store the home team marker for later use
+    homeTeamMarkers.set(homeTeam, homeTeamMarker);
+
+    // Clone the home team marker and set its location to the away team location
+    const awayTeamMarker = L.marker(homeTeamMarker.getLatLng(), { icon: clubMarkers[awayTeam].options.icon })
+      .addTo(map)
+      .bindPopup(`
+        <b>${awayTeam}</b><br>
+        ${club.league}<br>
+        ${club.description}<br>
+        <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+        <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+        <div style="display: flex; justify-content: center; margin-top: 10px;">
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${awayTeamLatLng.lat},${awayTeamLatLng.lng}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+        </div>
+      `);
+
+    // Update the club marker reference to the new away team marker
+    clubMarkers[awayTeam] = awayTeamMarker;
   });
 
-  for (const club of clubs) {
-    if (clubsWithMatches.has(club.name)) {
-      const markerLatLng = clubMarkers[club.name].getLatLng();
-      const markerOffset = L.latLng(markerLatLng.lat + 0.02, markerLatLng.lng); // Adjust the latitude offset for readability
-      const marker = L.marker(markerOffset, { icon: clubMarkers[club.name].options.icon })
-        .addTo(map)
-        .bindPopup(`
-    <b>${club.name}</b><br>
-    ${club.league}<br>
-    ${club.description}<br>
-    <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
-    <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
-    <div style="display: flex; justify-content: center; margin-top: 10px;">
-      <a href="https://www.google.com/maps/dir/?api=1&destination=${markerLatLng.lat},${markerLatLng.lng}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
-    </div>
-  `);
-
-      clubMarkers[club.name] = marker;
-    }
-  }
+  // Add all home team markers to the map
+  homeTeamMarkers.forEach((homeTeamMarker, homeTeam) => {
+    homeTeamMarker.addTo(map);
+    clubMarkers[homeTeam] = homeTeamMarker;
+  });
 }
     // Function to handle date change
     function handleDateChange(e) {
