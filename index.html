@@ -2834,7 +2834,7 @@ fetch('matches.xlsx')
     const matches = XLSX.utils.sheet_to_json(worksheet);
 
     // Function to display the markers for matches on a selected date
-function displayMatchesOnDate(matchesOnDate) {
+function getMatchesOnDate(matchesOnDate) {
   // First, remove all markers
   for (const club of clubs) {
     clubMarkers[club.name].remove();
