@@ -135,10 +135,11 @@
         .search-container {
             position: absolute;
             top: 20px;
-            left: 20px;
+            left: 50px;
             background-color: rgba(50, 149, 30, 0.5);
             padding: 20px;
             z-index: 999;
+            display: none;
         }
 
         .search-container input[type="text"],
@@ -161,8 +162,10 @@
         .search-container #date-section label,
         .search-container #date-input {
             font-size: 18px;
-            padding: 10px;
+
             height: 40px;
+            width: 200px;
+            align-self: center;
         }
 
         .search-container #search-section > * {
@@ -175,6 +178,25 @@
             height: calc(100vh - 40px);
             background-color: transparent;
         }
+
+
+  #filters-button {
+    color: white;
+    font-weight: bold;
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+  }
+  #close-button {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+    color: white;
+    font-weight: bold;
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+  }
 
         #search-section {
             display: flex;
@@ -349,12 +371,12 @@
             margin-right: 10px;
         }
         .filters-container {
-    display: none;
+
     position: absolute;
-    top: 20px;
+    top: 100px;
     left: 20px;
     z-index: 999;
-    background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(50, 149, 30, 0.5);
     padding: 20px;
   }
   .logo-weddies-bg {
@@ -378,21 +400,33 @@ height: 64px;
   display: none;
   position: absolute;
   background-color: #f1f1f1;
-  min-width: 300px;
+  min-width: 200px;
   max-height: 200px;
   overflow-y: auto;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
+
+left: 50%;
+transform: translate(-50%, 0%);
 }
 
 .dropdown-content div {
   color: black;
-  padding: 12px 16px;
+  padding: 12px 10px; /* Adjust the padding as desired */
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+
+.dropdown-content div.selected {
+  background-color: lightgreen;
 }
 
 .dropdown-content div:hover {background-color: #ddd;}
@@ -400,6 +434,14 @@ height: 64px;
 .dropdown:hover .dropdown-content {display: block;}
 
 .dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+.dropbtn {
+  width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px; /* Adjust the maximum width as desired */
+}
 .popup {
   display: none;
   position: fixed;
@@ -515,9 +557,9 @@ button {
 <div class="dropdown-content" id="dropdown-content"></div>
 </div>
 
-        <input type="range" id="radius-slider" min="1" max="1500" value="1" step="1">
-<label for="radius-slider">Search Radius</label>
-<span id="radius-value"></span> km
+<input type="range" id="radius-slider" min="1" max="1500" value="1" step="1">
+    <label for="radius-slider" style="color: white; font-weight: bold;">Search Radius (Km)</label>
+    <span id="radius-value" style="color: white; font-weight: bold;">All</span>
     </div>
   </div>
 
@@ -587,9 +629,10 @@ button {
     });
 
     filtersButton.addEventListener("click", function() {
-        searchContainer.style.display = "flex";
         filtersContainer.style.display = "none";
+        searchContainer.style.display = "flex";
     });
+
 
 
 
@@ -3019,10 +3062,13 @@ const leagueLogos = {
 };
 
 const dropdownButton = document.getElementById('dropdown-button');
+const dropdownContent = document.getElementById('dropdown-content');
 
-function filterClubsByLeague(selectedLeague) {
+let selectedLeagues = [];
+
+function filterClubsByLeague() {
   for (const club of clubs) {
-    if (selectedLeague === 'All Leagues' || club.league === selectedLeague) {
+    if (selectedLeagues.includes(club.league) || selectedLeagues.length === 0) {
       clubMarkers[club.name].addTo(map);
     } else {
       clubMarkers[club.name].remove();
@@ -3031,44 +3077,54 @@ function filterClubsByLeague(selectedLeague) {
 }
 
 function createLeagueFilter() {
-  dropdownButton.innerHTML = 'All Leagues';
-
-  const dropdownContent = document.getElementById('dropdown-content');
-
-  // Create the 'All Leagues' button
   const allLeaguesDiv = document.createElement('div');
   allLeaguesDiv.textContent = 'All Leagues';
   allLeaguesDiv.onclick = function () {
+    selectedLeagues = [];
     dropdownButton.innerHTML = this.innerHTML;
-    filterClubsByLeague('All Leagues');
+    filterClubsByLeague();
   };
   dropdownContent.appendChild(allLeaguesDiv);
 
-  // Add a separator
   dropdownContent.appendChild(document.createElement('hr'));
 
-  // Add the league options
   for (const [league, logo] of Object.entries(leagueLogos)) {
     const div = document.createElement('div');
     const img = document.createElement('img');
     img.src = logo;
     img.style.height = '20px';
     img.style.marginRight = '10px';
-    img.style.pointerEvents = 'none'; // Disable pointer events on the image
+    img.style.pointerEvents = 'none';
     div.appendChild(img);
 
     const textNode = document.createTextNode(league);
     div.appendChild(textNode);
     div.onclick = function () {
-      dropdownButton.innerHTML = this.innerHTML;
       const selectedLeague = this.textContent.trim();
-      filterClubsByLeague(selectedLeague);
+      const index = selectedLeagues.indexOf(selectedLeague);
+      if (index === -1) {
+        selectedLeagues.push(selectedLeague);
+        dropdownButton.innerHTML = selectedLeagues.join(', ');
+      } else {
+        selectedLeagues.splice(index, 1);
+        dropdownButton.innerHTML = selectedLeagues.join(', ');
+      }
+      updateSelectedLeagues();
+      filterClubsByLeague();
     };
     dropdownContent.appendChild(div);
   }
 }
+function updateSelectedLeagues() {
+  for (const div of dropdownContent.children) {
+    if (selectedLeagues.includes(div.textContent.trim())) {
+      div.classList.add('selected');
+    } else {
+      div.classList.remove('selected');
+    }
+  }
+}
 
-// Call the createLeagueFilter function
 createLeagueFilter();
 
 
@@ -3286,7 +3342,7 @@ function getUserLocation() {
     console.error('Geolocation is not supported by this browser.');
   }
 }
-var loginButton = L.Control.extend({
+/*var loginButton = L.Control.extend({
     options: {
       position: 'topright', // Change the position as needed
     },
@@ -3306,7 +3362,7 @@ var loginButton = L.Control.extend({
 
   // Add the button control to the map
   map.addControl(new loginButton());
-
+*/
 window.addEventListener('load', () => {
   getUserLocation();
 });
