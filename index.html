@@ -191,6 +191,11 @@
         #search-suggestions span {
             margin-left: 5px;
         }
+
+        #visited-search-input {
+            width: 200px;
+            padding: 5px;
+        }
         #visited-suggestions {
     position: absolute;
     top: 100%;
@@ -2593,6 +2598,10 @@ function updateVisitedClubs() {
 
   visitedSearchInput.addEventListener('input', (e) => {
     const searchValue = e.target.value.toLowerCase();
+    if (searchValue === '') {
+    visitedSuggestions.style.display = 'none';
+    return; // If the input is empty, don't show any suggestions and stop here.
+  }
     const filteredClubs = visitedClubs.filter(club => club.name.toLowerCase().includes(searchValue));
 
     // Clear previous suggestions
@@ -2810,6 +2819,10 @@ searchSuggestions.style.zIndex = '1'; // Set a lower z-index value for the searc
 
 searchInput.addEventListener('input', (e) => {
   const searchValue = e.target.value.toLowerCase();
+  if (searchValue === '') {
+    searchSuggestions.style.display = 'none';
+    return; // If the input is empty, don't show any suggestions and stop here.
+  }
   const filteredClubs = clubs.filter(club => club.name.toLowerCase().includes(searchValue));
 
   // Clear previous suggestions
@@ -2859,7 +2872,7 @@ searchInput.addEventListener('input', (e) => {
 
   // Show/hide suggestions based on input value
   if (filteredClubs.length > 0) {
-    visitedSuggestions.style.display = 'block';
+    searchSuggestions.style.display = 'block';
   } else {
     searchSuggestions.style.display = 'none';
   }
