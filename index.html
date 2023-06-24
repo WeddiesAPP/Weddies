@@ -2533,82 +2533,12 @@ clubColor2: 'blue',
 description: 'Hellas Verona is a Serie A club based in Verona. The club plays its home matches at Stadio Marcantonio Bentegodi.'
 }
 ];
-
-var length = clubs.length;
-  console.log("Length of 'clubs' array:", length);
-
-const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
-const lightLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19
-});
-const baseMaps = {
-  "Dark Map": darkLayer,
-  "Light Map": lightLayer
-};
-
-const map = L.map('mapid', {
-  center: [52.1326, 5.2913],
-  zoom: 7,
-  layers: [lightLayer] // Dark Layer by default
-});
-
-L.control.layers(baseMaps).addTo(map); // Add the control to the map
-
-const clubMarkers = {};
-function getLogoPath(clubName) {
-    if (clubName.startsWith('Jong ')) {
-      clubName = clubName.substring(5); // Remove "Jong " prefix
-    }
-
-    return `${clubName}.png`;
-  }
-clubs.forEach((club,index) => {
-  const clubLatLng = club.location;
-
-  const markerIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: `
-      <div style='background-color:${club.color};' class='marker-pin'></div>
-      <img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">
-    `,
-    iconSize: [40, 40], // reduced by 20%
-    iconAnchor: [20, 40] // reduced by 20%
-  });
-  const marker = L.marker(clubLatLng, { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
-    .addTo(map)
-    .bindPopup(`
-      <div style="display: flex; align-items: center;">
-        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 40px; height: 40px; margin-right: 10px;">
-        <div>
-          <b>${club.name}</b><br>
-          ${club.league}<br>
-
-          <button id="visitedBtn${club.name}" onclick="toggleVisited('${club.name}')">
-    <span id="visitedText${club.name}">${getVisitedText(club.name)}</span>
-    <span id="visitedIcon${club.name}">${getVisitedIcon(club.name)}</span>
-  </button>
-
-
-          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
-          <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
-
-          <div style="display: flex; justify-content: center; margin-top: 10px;">
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
-          </div>
-        </div>
-      </div>
-    `);
-
-
-  clubMarkers[club.name] = marker;
-});
-// Function to create a search bar for visited clubs
 function updateVisitedClubs() {
   const visitedClubList = document.getElementById('visited-club-list');
   const visitedSearchInput = document.getElementById('visited-search-input');
 
   // Get all visited clubs
-  const visitedClubs = clubs.filter(club => getCookie(safeCookieName(club.name)) === 'visited');
+  const visitedClubs = clubs.filter(club => getCookie(club.name) === 'visited');
 
   // Update visited club search bar placeholder
   visitedSearchInput.placeholder = `Visited Clubs: ${visitedClubs.length}`;
@@ -2652,29 +2582,6 @@ function updateVisitedClubs() {
     });
   }
 }
-
-// call this function every time you want to update the list of visited clubs
-
-
-
-map.on('popupopen', function(e) {
-  const clubName = e.popup._source.options.clubName;
-  const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
-  const visitedText = document.getElementById(`visitedText${clubName}`);
-  const visitedIcon = document.getElementById(`visitedIcon${clubName}`);
-
-  const isVisited = getCookie(clubName) === 'visited';
-  if (isVisited) {
-    visitedText.textContent = 'Visited';
-    visitedText.style.color = 'green';
-    visitedIcon.innerHTML = getVisitedIcon(clubName, 'green');
-  } else {
-    visitedText.textContent = 'Not visited';
-    visitedText.style.color = 'red';
-    visitedIcon.innerHTML = getVisitedIcon(clubName, 'red');
-  }
-});
-
 function toggleVisited(clubName) {
   const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
   const visitedText = document.getElementById(`visitedText${clubName}`);
@@ -2744,6 +2651,98 @@ function getCookie(name) {
 
   return '';
 }
+updateVisitedClubs();
+var length = clubs.length;
+  console.log("Length of 'clubs' array:", length);
+
+const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 });
+const lightLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+});
+const baseMaps = {
+  "Dark Map": darkLayer,
+  "Light Map": lightLayer
+};
+
+const map = L.map('mapid', {
+  center: [52.1326, 5.2913],
+  zoom: 7,
+  layers: [lightLayer] // Dark Layer by default
+});
+
+L.control.layers(baseMaps).addTo(map); // Add the control to the map
+
+const clubMarkers = {};
+function getLogoPath(clubName) {
+    if (clubName.startsWith('Jong ')) {
+      clubName = clubName.substring(5); // Remove "Jong " prefix
+    }
+
+    return `${clubName}.png`;
+  }
+clubs.forEach((club,index) => {
+  const clubLatLng = club.location;
+
+  const markerIcon = L.divIcon({
+    className: 'custom-div-icon',
+    html: `
+      <div style='background-color:${club.color};' class='marker-pin'></div>
+      <img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">
+    `,
+    iconSize: [40, 40], // reduced by 20%
+    iconAnchor: [20, 40] // reduced by 20%
+  });
+  const marker = L.marker(clubLatLng, { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
+    .addTo(map)
+    .bindPopup(`
+      <div style="display: flex; align-items: center;">
+        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 40px; height: 40px; margin-right: 10px;">
+        <div>
+          <b>${club.name}</b><br>
+          ${club.league}<br>
+
+          <button id="visitedBtn${club.name}" onclick="toggleVisited('${club.name}')">
+    <span id="visitedText${club.name}">${getVisitedText(club.name)}</span>
+    <span id="visitedIcon${club.name}">${getVisitedIcon(club.name)}</span>
+  </button>
+
+
+          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+          <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+
+          <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+          </div>
+        </div>
+      </div>
+    `);
+
+
+  clubMarkers[club.name] = marker;
+});
+
+
+
+
+map.on('popupopen', function(e) {
+  const clubName = e.popup._source.options.clubName;
+  const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
+  const visitedText = document.getElementById(`visitedText${clubName}`);
+  const visitedIcon = document.getElementById(`visitedIcon${clubName}`);
+
+  const isVisited = getCookie(clubName) === 'visited';
+  if (isVisited) {
+    visitedText.textContent = 'Visited';
+    visitedText.style.color = 'green';
+    visitedIcon.innerHTML = getVisitedIcon(clubName, 'green');
+  } else {
+    visitedText.textContent = 'Not visited';
+    visitedText.style.color = 'red';
+    visitedIcon.innerHTML = getVisitedIcon(clubName, 'red');
+  }
+});
+
+
 const searchInput = document.getElementById('search-input');
 const searchSuggestions = document.getElementById('search-suggestions');
 searchSuggestions.style.zIndex = '1'; // Set a lower z-index value for the search suggestions
@@ -3172,14 +3171,7 @@ document.getElementById("registrationForm").addEventListener("submit", function(
   // Close the registration popup
   document.getElementById("registerPopup").style.display = "none";
 });
-document.getElementById('visited-club-btn').addEventListener('click', () => {
-  const visitedClubList = document.getElementById('visited-club-list');
-  if (visitedClubList.style.display === 'none') {
-    visitedClubList.style.display = 'block';
-  } else {
-    visitedClubList.style.display = 'none';
-  }
-});
+
 
 </script>
 </body>
