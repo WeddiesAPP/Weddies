@@ -191,6 +191,51 @@
         #search-suggestions span {
             margin-left: 5px;
         }
+        #visited-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-top: none;
+    display: none;
+}
+
+#visited-suggestions ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#visited-suggestions li {
+    padding: 5px;
+    cursor: pointer;
+}
+
+#visited-suggestions li:hover {
+    background-color: #f8f9fa00;
+}
+
+#visited-suggestions .club-logo {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+#visited-suggestions .suggestion {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    cursor: pointer;
+}
+
+#visited-suggestions span {
+    margin-left: 5px;
+}
+
 
         #mapid {
             width: 100%;
