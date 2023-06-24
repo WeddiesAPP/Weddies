@@ -396,7 +396,7 @@ button {
         </div>
         <div id="visited-search-bar">
        <input type="text" id="visited-search-input" placeholder="Visited Clubs: 0">
-       <div id="visited-club-list" style="display:none;"></div>
+       <div id="visited-suggestions"></div>
      </div>
         <div id="date-section">
     <label for="date-input"></label>
@@ -2534,8 +2534,8 @@ description: 'Hellas Verona is a Serie A club based in Verona. The club plays it
 }
 ];
 function updateVisitedClubs() {
-  const visitedClubList = document.getElementById('visited-club-list');
   const visitedSearchInput = document.getElementById('visited-search-input');
+  const visitedSuggestions = document.getElementById('visited-suggestions'); // create this new element
 
   // Get all visited clubs
   const visitedClubs = clubs.filter(club => getCookie(club.name) === 'visited');
@@ -2543,53 +2543,47 @@ function updateVisitedClubs() {
   // Update visited club search bar placeholder
   visitedSearchInput.placeholder = `Visited Clubs: ${visitedClubs.length}`;
 
-  visitedSearchInput.addEventListener('input', function() {
-    const searchValue = this.value.toLowerCase();
+  // Clear previous visited club list
+  visitedSuggestions.innerHTML = '';
+
+  visitedSearchInput.addEventListener('input', (e) => {
+    const searchValue = e.target.value.toLowerCase();
     const filteredClubs = visitedClubs.filter(club => club.name.toLowerCase().includes(searchValue));
 
-    // Clear previous club list
-    visitedClubList.innerHTML = '';
+    // Clear previous suggestions
+    visitedSuggestions.innerHTML = '';
 
-    // Add new clubs to the list
+    // Add new suggestions
     filteredClubs.forEach(club => {
-      const clubItem = document.createElement('div');
-      clubItem.classList.add('suggestion');
+      const suggestion = document.createElement('div');
 
-      // Create logo element
+      // Add logo
       const logo = document.createElement('img');
-      logo.classList.add('club-logo-2');
       logo.src = getLogoPath(club.name);
-      clubItem.appendChild(logo);
+      suggestion.appendChild(logo);
 
-      // Create club info container
-      const clubInfo = document.createElement('div');
-      clubInfo.classList.add('club-info');
-
-      // Create club name element
+      // Add club name
       const clubName = document.createElement('span');
       clubName.textContent = club.name;
-      clubName.style.display = 'block'; // Set display to "block"
-      clubInfo.appendChild(clubName);
+      suggestion.appendChild(clubName);
 
-      // Create stadium name element
+      // Add stadium name
       const stadiumName = document.createElement('span');
       stadiumName.textContent = club.stadiumName;
-      stadiumName.style.display = 'block'; // Set display to "block"
-      stadiumName.style.fontSize = '0.6em'; // Set smaller font size
-      clubInfo.appendChild(stadiumName);
+      suggestion.appendChild(stadiumName);
 
-      clubItem.appendChild(clubInfo);
-
-      clubItem.addEventListener('click', () => {
-        map.setView(clubMarkers[club.name].getLatLng(), 12);
-        // Update map markers based on selected club
-        // ...
-      });
-
-      visitedClubList.appendChild(clubItem);
+      visitedSuggestions.appendChild(suggestion);
     });
+
+    // Show/hide suggestions based on input value
+    if (filteredClubs.length > 0) {
+      visitedSuggestions.style.display = 'block';
+    } else {
+      visitedSuggestions.style.display = 'none';
+    }
   });
 }
+
 function toggleVisited(clubName) {
   const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
   const visitedText = document.getElementById(`visitedText${clubName}`);
