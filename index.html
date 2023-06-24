@@ -394,11 +394,10 @@ button {
             <input type="text" id="search-input" placeholder="Search for a club">
             <div id="search-suggestions"></div>
         </div>
-        <button id="visited-club-btn">Visited Clubs: 0</button>
-
-<div id="visited-club-list" style="display:none;">
-  <!-- List of visited clubs will be added here dynamically -->
-</div>
+        <div id="visited-search-bar">
+       <input type="text" id="visited-search-input" placeholder="Visited Clubs: 0">
+       <div id="visited-club-list" style="display:none;"></div>
+     </div>
         <div id="date-section">
     <label for="date-input"></label>
     <input type="date" id="date-input">
@@ -2534,7 +2533,7 @@ clubColor2: 'blue',
 description: 'Hellas Verona is a Serie A club based in Verona. The club plays its home matches at Stadio Marcantonio Bentegodi.'
 }
 ];
-window.onload = updateVisitedClubs();
+
 var length = clubs.length;
   console.log("Length of 'clubs' array:", length);
 
@@ -2603,15 +2602,16 @@ clubs.forEach((club,index) => {
 
   clubMarkers[club.name] = marker;
 });
+// Function to create a search bar for visited clubs
 function updateVisitedClubs() {
   const visitedClubList = document.getElementById('visited-club-list');
-  const visitedClubBtn = document.getElementById('visited-club-btn');
+  const visitedSearchInput = document.getElementById('visited-search-input');
 
   // Get all visited clubs
-  const visitedClubs = clubs.filter(club => getCookie(club.name) === 'visited');
+  const visitedClubs = clubs.filter(club => getCookie(safeCookieName(club.name)) === 'visited');
 
-  // Update visited club button text
-  visitedClubBtn.textContent = `Visited Clubs: ${visitedClubs.length}`;
+  // Update visited club search bar placeholder
+  visitedSearchInput.placeholder = `Visited Clubs: ${visitedClubs.length}`;
 
   // Clear previous visited club list
   visitedClubList.innerHTML = '';
@@ -2637,7 +2637,25 @@ function updateVisitedClubs() {
 
     visitedClubList.appendChild(clubItem);
   });
+
+  visitedSearchInput.onkeyup = function() {
+    const filter = this.value.toLowerCase();
+    visitedClubList.childNodes.forEach(function(node) {
+      if (node.nodeType === 1) { // Checks if node is an element node
+        const textValue = node.textContent || node.innerText;
+        if (textValue.toLowerCase().indexOf(filter) > -1) {
+          node.style.display = "";
+        } else {
+          node.style.display = "none";
+        }
+      }
+    });
+  }
 }
+
+// call this function every time you want to update the list of visited clubs
+
+
 
 map.on('popupopen', function(e) {
   const clubName = e.popup._source.options.clubName;
