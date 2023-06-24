@@ -10,6 +10,49 @@
             margin: 0;
             padding: 0;
         }
+        .loading-animation {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #32951e; /* Change to desired background color, e.g., green */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out;
+      }
+
+      .loading-animation .logo-weddies-bg {
+        animation: zoom 2s ease-in-out;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50%;
+        height: 50%;
+        max-width: 300px; /* Adjust the maximum width as desired */
+        max-height: 300px; /* Adjust the maximum height as desired */
+        object-fit: contain;
+      }
+
+      @keyframes zoom {
+        0% {
+          transform: translate(-50%, -50%) scale(1.3);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+
+
+
+
+
         .leaflet-control-attribution {
             display: none;
         }
@@ -35,7 +78,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(50, 149, 30, 0.5);
             padding: 20px;
             z-index: 999;
         }
@@ -340,6 +383,9 @@ button {
 </head>
 <body>
 
+  <div class="loading-animation">
+    <img src="Weddies.png" alt="Loading..." class="logo-weddies-bg" />
+  </div>
   <div class="container">
     <div class="search-container">
 <button id="close-button">Close</button>
@@ -364,6 +410,7 @@ button {
     </div>
   </div>
     <div id="mapid">
+
       <button id="loginBtn">Login</button>
 
      <div id="loginPopup" class="popup">
@@ -400,6 +447,14 @@ button {
   </div>
 <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script>
+    window.addEventListener("load", function() {
+  var loadingAnimation = document.querySelector(".loading-animation");
+  loadingAnimation.style.opacity = "0";
+  setTimeout(function() {
+    loadingAnimation.style.display = "none";
+  }, 300); // Adjust the timeout value to match the transition duration in CSS
+});
+
     var searchContainer = document.querySelector(".search-container");
     var filtersContainer = document.querySelector(".filters-container");
     var closeButton = document.getElementById("close-button");
@@ -2502,7 +2557,7 @@ function getLogoPath(clubName) {
 
     return `${clubName}.png`;
   }
-clubs.forEach(club => {
+clubs.forEach((club,index) => {
   const clubLatLng = club.location;
 
   const markerIcon = L.divIcon({
@@ -2514,7 +2569,7 @@ clubs.forEach(club => {
     iconSize: [40, 40], // reduced by 20%
     iconAnchor: [20, 40] // reduced by 20%
   });
-  const marker = L.marker(clubLatLng, { icon: markerIcon })
+  const marker = L.marker(clubLatLng, { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
     .addTo(map)
     .bindPopup(`
       <div style="display: flex; align-items: center;">
@@ -2523,10 +2578,11 @@ clubs.forEach(club => {
           <b>${club.name}</b><br>
           ${club.league}<br>
 
-          <button id="visitedBtn" onclick="toggleVisited('${club.name}')">
-            <span id="visitedText">${getVisitedText(club.name)}</span>
-            <span id="visitedIcon">${getVisitedIcon(club.name)}</span>
-          </button>
+          <button id="visitedBtn${club.name}" onclick="toggleVisited('${club.name}')">
+    <span id="visitedText${club.name}">${getVisitedText(club.name)}</span>
+    <span id="visitedIcon${club.name}">${getVisitedIcon(club.name)}</span>
+  </button>
+
 
           <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
           <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
@@ -2541,10 +2597,31 @@ clubs.forEach(club => {
 
   clubMarkers[club.name] = marker;
 });
+map.on('popupopen', function(e) {
+  const clubName = e.popup._source.options.clubName;
+  const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
+  const visitedText = document.getElementById(`visitedText${clubName}`);
+  const visitedIcon = document.getElementById(`visitedIcon${clubName}`);
+
+  const isVisited = getCookie(clubName) === 'visited';
+  if (isVisited) {
+    visitedText.textContent = 'Visited';
+    visitedText.style.color = 'green';
+    visitedIcon.innerHTML = getVisitedIcon(clubName, 'green');
+  } else {
+    visitedText.textContent = 'Not visited';
+    visitedText.style.color = 'red';
+    visitedIcon.innerHTML = getVisitedIcon(clubName, 'red');
+  }
+});
+
 function toggleVisited(clubName) {
-  const visitedBtn = document.getElementById('visitedBtn');
-  const visitedText = document.getElementById('visitedText');
-  const visitedIcon = document.getElementById('visitedIcon');
+  const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
+  const visitedText = document.getElementById(`visitedText${clubName}`);
+  const visitedIcon = document.getElementById(`visitedIcon${clubName}`);
+
+
+
 
   const isVisited = getCookie(clubName) === 'visited';
 
@@ -2577,8 +2654,15 @@ function getVisitedIcon(clubName, color = 'red') {
 }
 
 // Function to set a cookie with the specified name and value
-function setCookie(name, value) {
-  document.cookie = `${name}=${value}`;
+// Function to set a cookie with the specified name and value
+function setCookie(name, value, days = 365) {
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days*24*60*60*1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = `${name}=${value}${expires}`;
 }
 
 // Function to get the value of a cookie by name
