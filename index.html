@@ -68,6 +68,46 @@
            cursor: pointer;
            z-index: 9999;
          }
+         .popup-profile {
+             position: absolute;
+             z-index: 1001; /* Ensures the popup appears above the map */
+             background: white;
+             border: 1px solid #ccc;
+
+             width: 300px;
+             height: 400px;
+             left: 40%;
+             top: 40%;
+
+             overflow: auto; /* Enables scrolling if the content exceeds the popup's size */
+         }
+         .club-div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.club-div img {
+    margin-right: 10px;
+}
+
+.club-div span {
+    margin-right: 5px;
+}
+
+#closePopup {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+
+
+
         .leaflet-control-attribution {
             display: none;
         }
@@ -482,6 +522,13 @@ button {
       <div class="profile-icon" id="profileIcon">
          <img src="profile.png" alt="Profile Image" width="40" height="40">
        </div>
+       <div id="profilePopup" class="popup-profile" style="display:none">
+   <h2>Visited Clubs</h2>
+   <div id="visitedClubContainer"></div>
+   <button id="closePopup">Close</button>
+ </div>
+
+</div>
       <button id="loginBtn">Login</button>
 
      <div id="loginPopup" class="popup">
@@ -2759,40 +2806,46 @@ const map = L.map('mapid', {
   zoom: 7,
   layers: [lightLayer] // Dark Layer by default
 });
-function openPopup() {
-  // Get all visited clubs
-  const visitedClubs = clubs.filter(club => getCookie(club.name) === 'visited');
+// Get the profile icon element and add a click event listener
 
-  // Create the popup content
-  let popupContent = '';
+function showVisitedClubs() {
+    const visitedClubs = clubs.filter(club => getCookie(club.name) === 'visited');
+    const visitedClubContainer = document.getElementById('visitedClubContainer');
 
-  if (visitedClubs.length > 0) {
-    popupContent += '<h3>Visited Clubs</h3>';
+    // Clear previous content
+    visitedClubContainer.innerHTML = '';
+
     visitedClubs.forEach(club => {
-      popupContent += `
-        <div class="club">
-          <img src="${getLogoPath(club.name)}" class="club-logo" alt="${club.name}">
-          <span>${club.name}</span>
-        </div>
-      `;
-    });
-  } else {
-    popupContent += '<p>No visited clubs yet.</p>';
-  }
+        const clubItem = document.createElement('div');
 
-  // Create the popup and open it
-  const popup = L.popup()
-    .setLatLng(map.getCenter()) // Set the popup position to the center of the map
-    .setContent(popupContent)
-    .openOn(map);
+        // Add logo
+        const logo = document.createElement('img');
+        logo.src = getLogoPath(club.name);
+        clubItem.appendChild(logo);
+
+        // Add club name
+        const clubName = document.createElement('span');
+        clubName.textContent = club.name;
+        clubItem.appendChild(clubName);
+
+        // Add stadium name
+        const stadiumName = document.createElement('span');
+        stadiumName.textContent = club.stadiumName;
+        clubItem.appendChild(stadiumName);
+
+        visitedClubContainer.appendChild(clubItem);
+    });
 }
 
-var profileIcon = document.getElementById('profileIcon');
+
 profileIcon.addEventListener('click', function() {
-  console.log('Profile icon clicked!');
-  openPopup();
+    profilePopup.style.display = 'block';
+    showVisitedClubs();
 });
 
+document.getElementById('closePopup').addEventListener('click', function() {
+  document.getElementById('popup-profile').style.display = 'none';
+});
 
 var layerControl = L.control.layers(baseMaps, null, {
   position: 'bottomright' // Set the position to 'bottomright'
