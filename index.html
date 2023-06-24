@@ -82,18 +82,21 @@
              overflow: auto; /* Enables scrolling if the content exceeds the popup's size */
          }
          .club-div {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
+   display: flex;
+   align-items: center;
+   margin-bottom: 10px;
+ }
 
-.club-div img {
-    margin-right: 10px;
-}
+ .club-div img {
+   margin-right: 10px;
+   padding: 5px; /* Add padding to the logo */
+ }
 
-.club-div span {
-    margin-right: 5px;
-}
+ .club-div span {
+   margin-right: 5px;
+   padding: 5px; /* Add padding to the text */
+ }
+
 
 #closePopup {
     position: absolute;
@@ -2816,25 +2819,28 @@ function showVisitedClubs() {
     visitedClubContainer.innerHTML = '';
 
     visitedClubs.forEach(club => {
-        const clubItem = document.createElement('div');
+  const clubItem = document.createElement('div');
+  clubItem.classList.add('club-div'); // Add a class for styling
 
-        // Add logo
-        const logo = document.createElement('img');
-        logo.src = getLogoPath(club.name);
-        clubItem.appendChild(logo);
+  // Add logo
+  const logo = document.createElement('img');
+  logo.src = getLogoPath(club.name);
+  logo.classList.add('club-logo-2'); // Add a class for styling
+  clubItem.appendChild(logo);
 
-        // Add club name
-        const clubName = document.createElement('span');
-        clubName.textContent = club.name;
-        clubItem.appendChild(clubName);
+  // Add club name
+  const clubName = document.createElement('span');
+  clubName.textContent = club.name;
+  clubItem.appendChild(clubName);
 
-        // Add stadium name
-        const stadiumName = document.createElement('span');
-        stadiumName.textContent = club.stadiumName;
-        clubItem.appendChild(stadiumName);
+  // Add stadium name
+  const stadiumName = document.createElement('span');
+  stadiumName.textContent = club.stadiumName;
+  clubItem.appendChild(stadiumName);
 
-        visitedClubContainer.appendChild(clubItem);
-    });
+  visitedClubContainer.appendChild(clubItem);
+});
+
 }
 
 
@@ -2844,7 +2850,7 @@ profileIcon.addEventListener('click', function() {
 });
 
 document.getElementById('closePopup').addEventListener('click', function() {
-  document.getElementById('popup-profile').style.display = 'none';
+  document.getElementById('profilePopup').style.display = 'none';
 });
 
 var layerControl = L.control.layers(baseMaps, null, {
