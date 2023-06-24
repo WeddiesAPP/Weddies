@@ -52,7 +52,22 @@
 
 
 
-
+      .profile-icon {
+           position: fixed;
+           top: 10px;
+           right: 10px;
+           width: 40px;
+           height:40px;
+           background-color: transparent;
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           color: #fff;
+           font-size: 24px;
+           cursor: pointer;
+           z-index: 9999;
+         }
         .leaflet-control-attribution {
             display: none;
         }
@@ -464,7 +479,9 @@ button {
   </div>
 
     <div id="mapid">
-
+      <div class="profile-icon" id="profileIcon">
+         <img src="profile.png" alt="Profile Image" width="40" height="40">
+       </div>
       <button id="loginBtn">Login</button>
 
      <div id="loginPopup" class="popup">
@@ -523,6 +540,9 @@ button {
         searchContainer.style.display = "flex";
         filtersContainer.style.display = "none";
     });
+
+
+
 const clubs = [
     {
       name: 'ADO Den Haag',
@@ -2739,8 +2759,44 @@ const map = L.map('mapid', {
   zoom: 7,
   layers: [lightLayer] // Dark Layer by default
 });
+function openPopup() {
+  // Get all visited clubs
+  const visitedClubs = clubs.filter(club => getCookie(club.name) === 'visited');
 
-L.control.layers(baseMaps).addTo(map); // Add the control to the map
+  // Create the popup content
+  let popupContent = '';
+
+  if (visitedClubs.length > 0) {
+    popupContent += '<h3>Visited Clubs</h3>';
+    visitedClubs.forEach(club => {
+      popupContent += `
+        <div class="club">
+          <img src="${getLogoPath(club.name)}" class="club-logo" alt="${club.name}">
+          <span>${club.name}</span>
+        </div>
+      `;
+    });
+  } else {
+    popupContent += '<p>No visited clubs yet.</p>';
+  }
+
+  // Create the popup and open it
+  const popup = L.popup()
+    .setLatLng(map.getCenter()) // Set the popup position to the center of the map
+    .setContent(popupContent)
+    .openOn(map);
+}
+
+var profileIcon = document.getElementById('profileIcon');
+profileIcon.addEventListener('click', function() {
+  console.log('Profile icon clicked!');
+  openPopup();
+});
+
+
+var layerControl = L.control.layers(baseMaps, null, {
+  position: 'bottomright' // Set the position to 'bottomright'
+}).addTo(map);
 
 const clubMarkers = {};
 function getLogoPath(clubName) {
@@ -3097,6 +3153,9 @@ fetch('matches.xlsx')
     }
   }
 }
+
+
+
     // Function to handle date change
     function handleDateChange(e) {
       const selectedDate = e.target.value;
