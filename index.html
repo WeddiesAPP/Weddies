@@ -2601,21 +2601,34 @@ function updateVisitedClubs() {
     // Add new suggestions
     filteredClubs.forEach(club => {
       const suggestion = document.createElement('div');
+      suggestion.classList.add('suggestion');  // Add this line
 
       // Add logo
       const logo = document.createElement('img');
       logo.src = getLogoPath(club.name);
+      logo.classList.add('club-logo-2');  // Add this line
       suggestion.appendChild(logo);
+
+      // Add club info container
+      const clubInfo = document.createElement('div');
+      clubInfo.classList.add('club-info');  // Add this line
 
       // Add club name
       const clubName = document.createElement('span');
       clubName.textContent = club.name;
-      suggestion.appendChild(clubName);
+      clubName.style.display = 'block';  // Add this line
+      clubInfo.appendChild(clubName);
 
       // Add stadium name
       const stadiumName = document.createElement('span');
       stadiumName.textContent = club.stadiumName;
-      suggestion.appendChild(stadiumName);
+      stadiumName.style.display = 'block';  // Add this line
+      stadiumName.style.fontSize = '0.6em';  // Add this line
+      stadiumName.classList.add('stadium-name');  // Add this line
+      clubInfo.appendChild(stadiumName);
+
+      // Append club info to suggestion
+      suggestion.appendChild(clubInfo);
 
       visitedSuggestions.appendChild(suggestion);
     });
@@ -2628,6 +2641,7 @@ function updateVisitedClubs() {
     }
   });
 }
+
 
 function toggleVisited(clubName) {
   const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
@@ -2845,7 +2859,7 @@ searchInput.addEventListener('input', (e) => {
 
   // Show/hide suggestions based on input value
   if (filteredClubs.length > 0) {
-    searchSuggestions.style.display = 'block';
+    visitedSuggestions.style.display = 'block';
   } else {
     searchSuggestions.style.display = 'none';
   }
