@@ -2529,6 +2529,10 @@ clubColor2: 'blue',
 description: 'Hellas Verona is a Serie A club based in Verona. The club plays its home matches at Stadio Marcantonio Bentegodi.'
 }
 ];
+
+function sanitizeName(name) {
+  return name.replace(/[^a-zA-Z0-9-_:.]/g, '');
+}
 var length = clubs.length;
   console.log("Length of 'clubs' array:", length);
 
@@ -2557,46 +2561,46 @@ function getLogoPath(clubName) {
 
     return `${clubName}.png`;
   }
-clubs.forEach((club,index) => {
-  const clubLatLng = club.location;
+  clubs.forEach((club) => {
+    const clubLatLng = club.location;
+    const safeName = sanitizeName(club.name);
 
-  const markerIcon = L.divIcon({
-    className: 'custom-div-icon',
-    html: `
-      <div style='background-color:${club.color};' class='marker-pin'></div>
-      <img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">
-    `,
-    iconSize: [40, 40], // reduced by 20%
-    iconAnchor: [20, 40] // reduced by 20%
-  });
-  const marker = L.marker(clubLatLng, { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
-    .addTo(map)
-    .bindPopup(`
-      <div style="display: flex; align-items: center;">
-        <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 40px; height: 40px; margin-right: 10px;">
-        <div>
-          <b>${club.name}</b><br>
-          ${club.league}<br>
+    const markerIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `
+        <div style='background-color:${club.color};' class='marker-pin'></div>
+        <img src="${getLogoPath(club.name)}" alt="${club.name}" class="club-logo">
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 40]
+    });
 
-          <button id="visitedBtn${club.name}" onclick="toggleVisited('${club.name}')">
-    <span id="visitedText${club.name}">${getVisitedText(club.name)}</span>
-    <span id="visitedIcon${club.name}">${getVisitedIcon(club.name)}</span>
-  </button>
+    const marker = L.marker(clubLatLng, { icon: markerIcon, clubName: club.name })
+      .addTo(map)
+      .bindPopup(`
+        <div style="display: flex; align-items: center;">
+          <img src="${getLogoPath(club.name)}" alt="${club.name}" style="width: 40px; height: 40px; margin-right: 10px;">
+          <div>
+            <b>${club.name}</b><br>
+            ${club.league}<br>
 
+            <button id="visitedBtn${safeName}" onclick="toggleVisited('${club.name}')">
+              <span id="visitedText${safeName}">${getVisitedText(club.name)}</span>
+              <span id="visitedIcon${safeName}">${getVisitedIcon(club.name)}</span>
+            </button>
 
-          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
-          <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
+            <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+            <button onclick="window.open('${club.ticketLink}', '_blank')">Buy Tickets</button>
 
-          <div style="display: flex; justify-content: center; margin-top: 10px;">
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+            <div style="display: flex; justify-content: center; margin-top: 10px;">
+              <a href="https://www.google.com/maps/dir/?api=1&destination=${clubLatLng[0]},${clubLatLng[1]}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+            </div>
           </div>
         </div>
-      </div>
-    `);
+      `);
 
-
-  clubMarkers[club.name] = marker;
-});
+    clubMarkers[club.name] = marker;
+  });
 map.on('popupopen', function(e) {
   const clubName = e.popup._source.options.clubName;
   const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
@@ -2616,12 +2620,9 @@ map.on('popupopen', function(e) {
 });
 
 function toggleVisited(clubName) {
-  const visitedBtn = document.getElementById(`visitedBtn${clubName}`);
-  const visitedText = document.getElementById(`visitedText${clubName}`);
-  const visitedIcon = document.getElementById(`visitedIcon${clubName}`);
-
-
-
+  const safeName = sanitizeName(clubName);
+  const visitedText = document.getElementById(`visitedText${safeName}`);
+  const visitedIcon = document.getElementById(`visitedIcon${safeName}`);
 
   const isVisited = getCookie(clubName) === 'visited';
 
