@@ -641,7 +641,7 @@ button {
       const headers = lines[0].split(',');
 
       for (let i = 1; i < lines.length - 1; i++) {
-        const fields = lines[i].split(',');
+        const fields = lines[i].split(';');
 
         const club = {
       name: fields[4], // clubName
