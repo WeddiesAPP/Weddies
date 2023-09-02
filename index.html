@@ -704,7 +704,7 @@ button {
 
           clubMarkers[club.name] = marker;
         }
-      });
+
 
         // Any additional processing on the 'clubs' array can be done here
 function addClubLogosToMap(clubs) {
@@ -725,7 +725,7 @@ function addClubLogosToMap(clubs) {
     const marker = L.marker([club.locationLat, club.locationLon], { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
       .addTo(map);
 }
-
+}
 function updateVisitedClubs() {
   const visitedSearchInput = document.getElementById('visited-search-input');
   const visitedSuggestions = document.getElementById('visited-suggestions'); // create this new element
