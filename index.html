@@ -669,15 +669,7 @@ button {
         clubs.push(club);
       }
     }
-    function printClubs(clubs) {
-      for (let club of clubs) {
-        console.log('Name:', club.name);
-        console.log('Members:', club.members);
-        console.log('Founded:', club.founded);
-        console.log('Img Link:', club.clubImageName);
-        console.log(club.locationLat, club.locationLon);
-      }
-    }
+
 
     // Fetch the CSV file
     fetch('teams.csv')
@@ -685,23 +677,8 @@ button {
       .then((csvData) => {
         parseCSV(csvData);
         console.log(clubs.length); // This will now print the correct length
-        printClubs(clubs);
-        for (let club of clubs) {
-          const clubMarkers = {};
-          //const clubLatLng = L.latLng(club.location[0], club.location[1]);
-          console.log(club.locationLat, club.locationLon);
-          const markerIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `
-              <div style='background-color:white;' class='marker-pin'></div>
-              <img src="${club.clubImageName}" alt="${club.name}" class="club-logo">
-            `,
-            iconSize: [40, 40], // reduced by 20%
-            iconAnchor: [20, 40] // reduced by 20%
-          });
+        addClubLogosToMap(clubs);
 
-          const marker = L.marker([club.locationLat, club.locationLon], { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
-            .addTo(map);
 
           /*.bindPopup(`
             <div style="display: flex; align-items: center;">
@@ -730,7 +707,24 @@ button {
       });
 
         // Any additional processing on the 'clubs' array can be done here
+function addClubLogosToMap(clubs) {
+  for (let club of clubs) {
+    const clubMarkers = {};
+    //const clubLatLng = L.latLng(club.location[0], club.location[1]);
+    console.log(club.locationLat, club.locationLon);
+    const markerIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `
+        <div style='background-color:white;' class='marker-pin'></div>
+        <img src="${club.clubImageName}" alt="${club.name}" class="club-logo">
+      `,
+      iconSize: [40, 40], // reduced by 20%
+      iconAnchor: [20, 40] // reduced by 20%
+    });
 
+    const marker = L.marker([club.locationLat, club.locationLon], { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
+      .addTo(map);
+}
 
 function updateVisitedClubs() {
   const visitedSearchInput = document.getElementById('visited-search-input');
