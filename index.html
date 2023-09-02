@@ -696,8 +696,18 @@ button {
           iconAnchor: [20, 40] // reduced by 20%
         });
 
-        const marker = L.marker([club.locationLat, club.locationLon], { icon: markerIcon, clubName: club.name }) // Add clubName as a custom option
-          .addTo(map);
+        const marker = L.marker([club.locationLat, club.locationLon], { icon: markerIcon, clubName: club.name })
+        .addTo(map)
+        .bindPopup(`
+          <b>${club.name}</b><br>
+          ${club.league}<br>
+          ${club.description}<br>
+          <button onclick="window.open('${club.link}', '_blank')">Learn more</button>
+
+          <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${club.locationLat},${club.locationLon}" target="_blank" style="background-color: blue; color: white; padding: 8px 12px; border-radius: 4px; text-decoration: none;">Navigate To</a>
+          </div>
+        `);
 
         clubMarkers[club.name] = marker;
       }
